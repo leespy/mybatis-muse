@@ -77,19 +77,21 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
 
             // 如果是调用默认构造方法
             if (constructorArgTypes == null || constructorArgs == null) {
-                constructor = type.getDeclaredConstructor(); // 取得默认构造方法
+                constructor = type.getDeclaredConstructor(); // 取得默认构造方法对象
                 if (!constructor.isAccessible()) {
                     // 为反射对象设置可访问标志，flag为true表明屏蔽Java语言的访问检查，使得对象的私有属性也可以被查询和设置
                     constructor.setAccessible(true);
                 }
-                return constructor.newInstance();
+                return constructor.newInstance(); // 生成实例
             }
+
+            // 取得有参数的构造方法对象
             constructor =
                     type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[constructorArgTypes.size()]));
             if (!constructor.isAccessible()) {
                 constructor.setAccessible(true);
             }
-            return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()]));
+            return constructor.newInstance(constructorArgs.toArray(new Object[constructorArgs.size()])); // 生成实例
         } catch (Exception e) {
             StringBuilder argTypes = new StringBuilder();
             if (constructorArgTypes != null && !constructorArgTypes.isEmpty()) {
@@ -97,7 +99,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
                     argTypes.append(argType.getSimpleName());
                     argTypes.append(",");
                 }
-                argTypes.deleteCharAt(argTypes.length() - 1); // remove trailing ,
+                argTypes.deleteCharAt(argTypes.length() - 1); // 移除最后一个逗号
             }
             StringBuilder argValues = new StringBuilder();
             if (constructorArgs != null && !constructorArgs.isEmpty()) {
@@ -105,7 +107,7 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
                     argValues.append(String.valueOf(argValue));
                     argValues.append(",");
                 }
-                argValues.deleteCharAt(argValues.length() - 1); // remove trailing ,
+                argValues.deleteCharAt(argValues.length() - 1); // 移除最后一个逗号
             }
             throw new ReflectionException(
                     "Error instantiating " + type + " with invalid types (" + argTypes + ") or values (" + argValues

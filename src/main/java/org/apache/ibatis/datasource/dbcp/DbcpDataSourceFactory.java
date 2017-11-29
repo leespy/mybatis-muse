@@ -16,7 +16,9 @@
 package org.apache.ibatis.datasource.dbcp;
 
 
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -48,5 +50,10 @@ public class DbcpDataSourceFactory extends BasicDataSource implements DataSource
             e.printStackTrace();
         }
         return dataSource;
+    }
+
+    @Override
+    public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+        return null;
     }
 }

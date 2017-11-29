@@ -19,11 +19,15 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * References a generic type.
+ * 获取泛型T的Type对象
+ *
+ * References a generic type（引用泛型类型）.
  *
  * @param <T> the referenced type
- * @since 3.1.0
+ *
  * @author Simone Tripodi
+ * @modify muse
+ * @since 3.1.0
  */
 public abstract class TypeReference<T> {
 
@@ -33,11 +37,42 @@ public abstract class TypeReference<T> {
         rawType = getSuperclassTypeParameter(getClass());
     }
 
+    /**
+     * 【getSuperclass 与 getGenericSuperclass的区别】
+     * **getSuperclass 返回直接继承的父类（由于编译擦除，没有显示泛型参数），返回Class对象
+     * **getGenericSuperclass 返回直接继承的父类（包含泛型参数），返回Type对象
+     *
+     * public class Test {
+     *      public static void main(String[] args) {
+     *      --------
+     *      }
+     * }
+     *
+     * class Person<T> {}
+     * class Student extends Person<Test> {}
+     *
+     * 输出结果：
+     * Student.class.getSuperclass()	class cn.test.Person
+     * Student.class.getGenericSuperclass()	cn.test.Person<cn.test.Test>
+     * Test.class.getSuperclass()	class java.lang.Object
+     * Test.class.getGenericSuperclass()	class java.lang.Object
+     * Object.class.getGenericSuperclass()	null
+     * Object.class.getSuperclass()	null
+     * void.class.getSuperclass()	null
+     * void.class.getGenericSuperclass()	null
+     * int[].class.getSuperclass()	class java.lang.Object
+     * int[].class.getGenericSuperclass()	class java.lang.Object
+     * getSuperclassTypeParameter 返回Test
+     *
+     * @param clazz
+     * @return
+     */
     Type getSuperclassTypeParameter(Class<?> clazz) {
+        // getGenericSuperclass 返回直接继承的父类（包含泛型参数）
         Type genericSuperclass = clazz.getGenericSuperclass();
         if (genericSuperclass instanceof Class) {
-            // try to climb up the hierarchy until meet something useful
             if (TypeReference.class != genericSuperclass) {
+                // getSuperclass 返回直接继承的父类（由于编译擦除，没有显示泛型参数）
                 return getSuperclassTypeParameter(clazz.getSuperclass());
             }
 
@@ -45,6 +80,7 @@ public abstract class TypeReference<T> {
                     + "Remove the extension or add a type parameter to it.");
         }
 
+        // 从一个泛型类型中获取第一个泛型参数的类型类
         Type rawType = ((ParameterizedType) genericSuperclass).getActualTypeArguments()[0];
         // TODO remove this when Reflector is fixed to return Types
         if (rawType instanceof ParameterizedType) {

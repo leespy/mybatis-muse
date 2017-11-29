@@ -23,10 +23,11 @@ import java.sql.SQLException;
 /**
  * 针对Enum枚举类型进行类型转换处理，针对【枚举name值】进行转换处理
  *
- * IN操作：将enum实例的name值存入DB
+ * IN操作：将enum实例的name值存入DB，eg：enum SEX{MALE(1, "男"), FEMALE(2, "女")} ----> SEX.MALE.name() == "MALE"
  * OUT操作：根据存入DB的enum的name值，取出Enum实例对象
  *
  * @author Clinton Begin
+ * @modify muse
  */
 public class EnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
 

@@ -21,15 +21,30 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 /**
+ * 数据库厂商标识，适用于mybatis在多种数据库厂商环境下，执行不同的sql使用。
+ *
  * Should return an id to identify the type of this database.
  * That id can be used later on to build different queries for each database type
  * This mechanism enables supporting multiple vendors or versions
  * 
  * @author Eduardo Macarron
+ * @modify muse
  */
 public interface DatabaseIdProvider {
 
+  /**
+   * 从Properties中获取mybatis中针对数据库厂商标识的配置信息
+   *
+   * @param p
+   */
   void setProperties(Properties p);
 
+  /**
+   * 通过数据源，获得产品名称，然后经过某些指定的处理，返回数据库厂商标识
+   *
+   * @param dataSource 数据源
+   * @return
+   * @throws SQLException
+   */
   String getDatabaseId(DataSource dataSource) throws SQLException;
 }

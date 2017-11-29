@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2017 Baidu, Inc. All Rights Reserved.
+  -->
+<configuration>
+    <properties/>							<!-- 配置 -->
+    <setting/>								<!-- 属性 -->
+    <typeAliases/>							<!-- 类型命名 -->
+    <typeHandlers/>							<!-- 类型处理器 -->
+    <objectFactory/>						<!-- 对象工厂 -->
+    <plugins/>	                            <!-- 插件 -->
+    <environments>                          <!-- 配置环境 -->
+        <environment>                       <!-- 环境变量 -->
+            <trasactionManager/>            <!-- 事务管理器 -->
+            <dataSource/>                   <!-- 数据源 -->
+        </environment>
+    </environments>
+    <databaseIdProvider/>					<!-- 数据库厂商标识 -->
+    <mappers/>								<!-- 映射器 -->
+</configuration>
+<!-- 【注】这些层次是不能够颠倒顺序的，如果颠倒顺序，Mybatis在解析XML文件的时候就会出现异常。-->
