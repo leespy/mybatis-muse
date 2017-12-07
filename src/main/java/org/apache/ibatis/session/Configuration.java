@@ -1,17 +1,17 @@
 /**
- * Copyright ${license.git.copyrightYears} the original author or authors.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *    Copyright ${license.git.copyrightYears} the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.apache.ibatis.session;
 
@@ -104,8 +104,15 @@ public class Configuration {
     protected boolean safeRowBoundsEnabled;
     protected boolean safeResultHandlerEnabled = true;
     protected boolean mapUnderscoreToCamelCase;
+
+    /** 延迟加载属性 **/
+    // 对任意延迟属性的调用会使带有延迟加载属性的对象完整加载。true：按照层级加载策略（默认）  false：按照调用要求进行加载
     protected boolean aggressiveLazyLoading;
+    // 是否开启延迟加载功能
+    protected boolean lazyLoadingEnabled = false;
+
     protected boolean multipleResultSetsEnabled = true;
+    // 使用DB的自增序列
     protected boolean useGeneratedKeys;
     protected boolean useColumnLabel = true;
     protected boolean cacheEnabled = true;
@@ -135,7 +142,6 @@ public class Configuration {
     protected ObjectFactory objectFactory = new DefaultObjectFactory();
     protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
-    protected boolean lazyLoadingEnabled = false;
     protected ProxyFactory proxyFactory = new JavassistProxyFactory(); // #224 Using internal Javassist instead of OGNL
 
     protected String databaseId;
@@ -532,7 +538,9 @@ public class Configuration {
         return languageRegistry.getDefaultDriver();
     }
 
-    /** @deprecated Use {@link #getDefaultScriptingLanguageInstance()} */
+    /**
+     * @deprecated Use {@link #getDefaultScriptingLanguageInstance()}
+     */
     @Deprecated
     public LanguageDriver getDefaultScriptingLanuageInstance() {
         return getDefaultScriptingLanguageInstance();

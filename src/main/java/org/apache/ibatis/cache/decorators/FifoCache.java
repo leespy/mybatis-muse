@@ -25,66 +25,70 @@ import org.apache.ibatis.cache.Cache;
  * FIFO (first in, first out) cache decorator
  *
  * @author Clinton Begin
+ * @modify muse
  */
 public class FifoCache implements Cache {
 
-  private final Cache delegate;
-  private Deque<Object> keyList;
-  private int size;
+    private final Cache delegate;
 
-  public FifoCache(Cache delegate) {
-    this.delegate = delegate;
-    this.keyList = new LinkedList<Object>();
-    this.size = 1024;
-  }
+    // 用双向队列来实现缓存的先入先出（FIFO）
+    private Deque<Object> keyList;
+    private int size;
 
-  @Override
-  public String getId() {
-    return delegate.getId();
-  }
-
-  @Override
-  public int getSize() {
-    return delegate.getSize();
-  }
-
-  public void setSize(int size) {
-    this.size = size;
-  }
-
-  @Override
-  public void putObject(Object key, Object value) {
-    cycleKeyList(key);
-    delegate.putObject(key, value);
-  }
-
-  @Override
-  public Object getObject(Object key) {
-    return delegate.getObject(key);
-  }
-
-  @Override
-  public Object removeObject(Object key) {
-    return delegate.removeObject(key);
-  }
-
-  @Override
-  public void clear() {
-    delegate.clear();
-    keyList.clear();
-  }
-
-  @Override
-  public ReadWriteLock getReadWriteLock() {
-    return null;
-  }
-
-  private void cycleKeyList(Object key) {
-    keyList.addLast(key);
-    if (keyList.size() > size) {
-      Object oldestKey = keyList.removeFirst();
-      delegate.removeObject(oldestKey);
+    public FifoCache(Cache delegate) {
+        this.delegate = delegate;
+        this.keyList = new LinkedList<Object>();
+        this.size = 1024;
     }
-  }
+
+    @Override
+    public String getId() {
+        return delegate.getId();
+    }
+
+    @Override
+    public int getSize() {
+        return delegate.getSize();
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    @Override
+    public void putObject(Object key, Object value) {
+        cycleKeyList(key);
+        delegate.putObject(key, value);
+    }
+
+    @Override
+    public Object getObject(Object key) {
+        return delegate.getObject(key);
+    }
+
+    @Override
+    public Object removeObject(Object key) {
+        return delegate.removeObject(key);
+    }
+
+    @Override
+    public void clear() {
+        delegate.clear();
+        keyList.clear();
+    }
+
+    @Override
+    public ReadWriteLock getReadWriteLock() {
+        return null;
+    }
+
+    private void cycleKeyList(Object key) {
+        keyList.addLast(key);
+        // 如果超出1024个，则删除掉最老的缓存数据
+        if (keyList.size() > size) {
+            Object oldestKey = keyList.removeFirst();
+            delegate.removeObject(oldestKey);
+        }
+    }
 
 }
