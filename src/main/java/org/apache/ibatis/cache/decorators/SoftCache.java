@@ -24,6 +24,10 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 软引用缓存
+ *
+ * 移除基于垃圾回收器状态和软引用规则的对象
+ *
  * Soft Reference cache decorator
  * Thanks to Dr. Heinz Kabutz for his guidance here.
  *

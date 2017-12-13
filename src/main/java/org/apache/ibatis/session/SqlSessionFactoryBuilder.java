@@ -48,6 +48,7 @@ public class SqlSessionFactoryBuilder {
     }
 
     /**
+     * 通过读取xml配置的字符流，获得DefaultSqlSessionFactory对象
      *
      * @param reader
      * @param environment
@@ -84,6 +85,7 @@ public class SqlSessionFactoryBuilder {
     }
 
     /**
+     *  通过读取xml配置的字节流，获得DefaultSqlSessionFactory对象
      *
      * @param inputStream
      * @param environment
@@ -106,6 +108,12 @@ public class SqlSessionFactoryBuilder {
         }
     }
 
+    /**
+     * build方法中，最基础的方法，以上所有的build方法都是为了构建Configuration，再调用该方法获得SqlSessionFactory
+     *
+     * @param config
+     * @return
+     */
     public SqlSessionFactory build(Configuration config) {
         return new DefaultSqlSessionFactory(config);
     }

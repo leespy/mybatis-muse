@@ -86,7 +86,9 @@ public interface Cache {
    */
   int getSize();
   
-  /** 
+  /**
+   * 获取缓存的读写锁
+   *
    * Optional. As of 3.2.6 this method is no longer called by the core.
    *  
    * Any locking needed by the cache must be provided internally by the cache provider.

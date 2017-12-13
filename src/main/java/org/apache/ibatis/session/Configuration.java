@@ -91,7 +91,7 @@ import org.apache.ibatis.type.TypeAliasRegistry;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 
 /**
- * mybatis配置信息类，将mybatis的xml配置文件，读入到该类中进行使用
+ * mybatis配置信息类，将mybatis的xml配置文件和映射mapper的xml配置文件，读入到该类中进行使用
  *
  * @author Clinton Begin
  * @modify muse
@@ -135,7 +135,9 @@ public class Configuration {
     protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
     protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 
+    // 保存<properties>属性信息
     protected Properties variables = new Properties();
+
     protected ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
 
     // 对象工厂，返回结果集对象时封装POJO使用

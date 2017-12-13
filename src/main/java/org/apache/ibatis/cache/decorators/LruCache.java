@@ -23,7 +23,7 @@ import org.apache.ibatis.cache.Cache;
 
 /**
  * LRU（即最近最久未使用）缓存装饰
- * 在LRU算法中，最少使用的元素被先换出
+ * 在LRU算法中，移除最长时间不用的对象
  *
  * Lru (least recently used) cache decorator
  *

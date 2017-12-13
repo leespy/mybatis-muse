@@ -24,6 +24,9 @@ import java.util.concurrent.locks.ReadWriteLock;
 import org.apache.ibatis.cache.Cache;
 
 /**
+ * 弱引用缓存
+ * 更积极地移除基于垃圾收集器状态和弱引用规则的对象。这里采用的是LRN，移除最长时间不用的对象
+ *
  * Weak Reference cache decorator.
  * Thanks to Dr. Heinz Kabutz for his guidance here.
  * 

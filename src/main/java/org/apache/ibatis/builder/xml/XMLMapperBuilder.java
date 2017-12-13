@@ -204,14 +204,23 @@ public class XMLMapperBuilder extends BaseBuilder {
         }
     }
 
+    /**
+     * 读取缓存配置
+     *
+     * @param context
+     * @throws Exception
+     */
     private void cacheElement(XNode context) throws Exception {
         if (context != null) {
             String type = context.getStringAttribute("type", "PERPETUAL");
             Class<? extends Cache> typeClass = typeAliasRegistry.resolveAlias(type);
             String eviction = context.getStringAttribute("eviction", "LRU");
             Class<? extends Cache> evictionClass = typeAliasRegistry.resolveAlias(eviction);
+            // 刷新缓存的间隔时间，单位为毫秒。如果不设置值，则当SQL被执行的时候才会去刷新缓存
             Long flushInterval = context.getLongAttribute("flushInterval");
+            // 引用数目，正整数，代表缓存最多可以存储多少个对象，不宜设置过大，否则会造成内存溢出。1024
             Integer size = context.getIntAttribute("size");
+            // 只读，意味着缓存数据只能读取而不能修改
             boolean readWrite = !context.getBooleanAttribute("readOnly", false);
             boolean blocking = context.getBooleanAttribute("blocking", false);
             Properties props = context.getChildrenAsProperties();

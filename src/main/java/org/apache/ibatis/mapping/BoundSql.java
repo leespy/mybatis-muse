@@ -24,6 +24,8 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.session.Configuration;
 
 /**
+ * 用于建立SQL和参数
+ *
  * An actual SQL String got from an {@link SqlSource} after having processed any dynamic content.
  * The SQL may have SQL placeholders "?" and an list (ordered) of an parameter mappings 
  * with the additional information for each parameter (at least the property name of the input object to read 
@@ -35,9 +37,15 @@ import org.apache.ibatis.session.Configuration;
  */
 public class BoundSql {
 
+  // 我们书写在映射器里面的一条SQL
   private String sql;
+
+  // ParameterMapping对象会描述我们的参数，参数包含属性、名称、表达式、javaType、jdbcType、typeHandler等重要信息
   private List<ParameterMapping> parameterMappings;
+
+  // SQL的传参对象（简单对象、POJO、Map或@Param注释的参数）
   private Object parameterObject;
+
   private Map<String, Object> additionalParameters;
   private MetaObject metaParameters;
 
