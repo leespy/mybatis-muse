@@ -1,5 +1,5 @@
 /**
- *    Copyright ${license.git.copyrightYears} the original author or authors.
+ *    Copyright 2009-2017 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -220,6 +220,7 @@ public class Configuration {
         typeAliasRegistry.registerAlias("NO_LOGGING", NoLoggingImpl.class);
 
         typeAliasRegistry.registerAlias("CGLIB", CglibProxyFactory.class);
+        // MyBatis3.3以及以上版本默认的代理工具
         typeAliasRegistry.registerAlias("JAVASSIST", JavassistProxyFactory.class);
 
         languageRegistry.setDefaultDriverClass(XMLLanguageDriver.class);
