@@ -27,6 +27,7 @@ import org.apache.ibatis.session.SqlSession;
 import ognl.IntHashMap;
 
 /**
+ * Mapper代理工厂类
  *
  * @author Lasse Voss
  * @modify muse
@@ -80,6 +81,7 @@ public class MapperProxyFactory<T> {
      */
     @SuppressWarnings("unchecked")
     protected T newInstance(MapperProxy<T> mapperProxy) {
+        String a = PkgConst.PACAKGE_CONST;
         return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] {mapperInterface}, mapperProxy);
     }
 
