@@ -27,7 +27,7 @@ import org.apache.ibatis.session.SqlSession;
 import ognl.IntHashMap;
 
 /**
- * Mapper代理工厂类
+ * 获得MapperProxy的代理工厂类
  *
  * @author Lasse Voss
  * @modify muse
