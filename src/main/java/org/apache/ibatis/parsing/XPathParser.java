@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2017 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.parsing;
 
@@ -46,11 +46,14 @@ public class XPathParser {
 
     // 用于解析xml配置文件的Document实例
     private Document document;
+
     private boolean validation;
+
     private EntityResolver entityResolver;
 
     // 保存<properties>属性内容
     private Properties variables;
+
     private XPath xpath;
 
     public XPathParser(String xml) {
@@ -123,8 +126,8 @@ public class XPathParser {
         this.document = createDocument(new InputSource(reader));
     }
 
-    public XPathParser(InputStream inputStream, boolean validation, Properties variables,
-                       EntityResolver entityResolver) {
+    // 走该方法 validation=true， variables=null entityResolver= new XMLMapperEntityResolver()
+    public XPathParser(InputStream inputStream, boolean validation, Properties variables, EntityResolver entityResolver) {
         commonConstructor(validation, variables, entityResolver);
         this.document = createDocument(new InputSource(inputStream));
     }
@@ -219,6 +222,7 @@ public class XPathParser {
         return xnodes;
     }
 
+    // expression="/configuration"
     public XNode evalNode(String expression) {
         return evalNode(document, expression);
     }
@@ -236,6 +240,7 @@ public class XPathParser {
          * 如果XPath表达式返回了多个节点，却指定类型为XPathConstants.NODE，则evaluate()方法将按照文档顺序返回第一个节点。
          * 如果XPath表达式的结果为一个空集，却指定类型为XPathConstants.NODE，则evaluate()方法将返回null。
          */
+        // expression="/configuration"  root=document
         Node node = (Node) evaluate(expression, root, XPathConstants.NODE);
         if (node == null) {
             return null;

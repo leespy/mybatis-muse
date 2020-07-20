@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2017 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.builder.xml;
 
@@ -56,36 +56,34 @@ import org.apache.ibatis.type.JdbcType;
  */
 public class XMLConfigBuilder extends BaseBuilder {
 
+    // XML配置文件是否被解析过，用于控制配置文件仅被解析一次
     private boolean parsed;
 
     // mybatis的xml配置文件解析器
     private XPathParser parser;
+
+    // 运行环境
     private String environment;
+
+    // 反射工厂
     private ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
-    public XMLConfigBuilder(Reader reader) {
-        this(reader, null, null);
-    }
 
-    public XMLConfigBuilder(Reader reader, String environment) {
-        this(reader, environment, null);
-    }
-
+    /** ---------提供接收Reader类型的配置信息构造方法--------- */
+    public XMLConfigBuilder(Reader reader) {this(reader, null, null);}
+    public XMLConfigBuilder(Reader reader, String environment) {this(reader, environment, null);}
     public XMLConfigBuilder(Reader reader, String environment, Properties props) {
         this(new XPathParser(reader, true, props, new XMLMapperEntityResolver()), environment, props);
     }
 
-    public XMLConfigBuilder(InputStream inputStream) {
-        this(inputStream, null, null);
-    }
-
-    public XMLConfigBuilder(InputStream inputStream, String environment) {
-        this(inputStream, environment, null);
-    }
-
+    /** ---------提供接收InputStream类型的配置信息构造方法--------- */
+    public XMLConfigBuilder(InputStream inputStream) {this(inputStream, null, null);}
+    public XMLConfigBuilder(InputStream inputStream, String environment) {this(inputStream, environment, null);}
+    // 走该方法
     public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
         this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
     }
+
 
     private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
         super(new Configuration());
@@ -97,11 +95,12 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
 
     /**
-     * 每个XML配置构造器实例只允许解析配置文件一次
+     * 解析配置文件
      *
      * @return
      */
     public Configuration parse() {
+        // 每个XML配置构造器实例只允许解析配置文件一次
         if (parsed) {
             throw new BuilderException("Each XMLConfigBuilder can only be used once.");
         }
