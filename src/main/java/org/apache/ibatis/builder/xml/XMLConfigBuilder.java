@@ -263,7 +263,7 @@ public class XMLConfigBuilder extends BaseBuilder {
             String resource = context.getStringAttribute("resource");
             String url = context.getStringAttribute("url");
 
-            // <properties resource=""/>与<properties url=""/>不能同时存在
+            // <properties resource=""/>与<properties url=""/>不能同时被配置
             if (resource != null && url != null) {
                 throw new BuilderException(
                         "The properties element cannot specify both a URL and a resource based property file "

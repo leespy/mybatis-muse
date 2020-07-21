@@ -94,7 +94,7 @@ public class SqlSessionFactoryBuilder {
      * @param properties
      * @return
      */
-    // 走此段代码
+    // environment=null properties=null
     public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
         try {
             XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
