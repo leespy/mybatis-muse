@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
+ *    Copyright 2009-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -108,6 +108,7 @@ public class ClassLoaderWrapper {
      * @param classLoader - the classloaders to examine
      * @return the resource or null
      */
+    // 通过ClassLoader来加载文件生成字节输入流
     InputStream getResourceAsStream(String resource, ClassLoader[] classLoader) {
         for (ClassLoader cl : classLoader) {
             if (null != cl) {
@@ -187,6 +188,7 @@ public class ClassLoaderWrapper {
         throw new ClassNotFoundException("Cannot find class: " + name);
     }
 
+    // 传入的classLoader > defaultClassLoader > 当前线程的ClassLoader > 当前类的ClassLoader > systemClassLoader
     ClassLoader[] getClassLoaders(ClassLoader classLoader) {
         return new ClassLoader[] {
                 classLoader,

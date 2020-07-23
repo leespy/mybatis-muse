@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class DefaultReflectorFactory implements ReflectorFactory {
     private boolean classCacheEnabled = true;
+
+    // 每一个class文件对应一个Reflector
     private final ConcurrentMap<Class<?>, Reflector> reflectorMap = new ConcurrentHashMap<Class<?>, Reflector>();
 
     public DefaultReflectorFactory() {

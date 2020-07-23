@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
+ *    Copyright 2009-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -97,6 +97,7 @@ public class Reflector {
     }
 
     private void addGetMethods(Class<?> cls) {
+        // String：属性名称（通过getXXX或isXXX方法名解析的） List<Method>：
         Map<String, List<Method>> conflictingGetters = new HashMap<String, List<Method>>();
         Method[] methods = getClassMethods(cls);
         for (Method method : methods) {
@@ -336,6 +337,11 @@ public class Reflector {
         Map<String, Method> uniqueMethods = new HashMap<String, Method>();
         Class<?> currentClass = cls;
         while (currentClass != null) {
+            /**
+             * Class类中getMethods()与getDeclaredMethods()方法的区别？
+             *   getMethods(),该方法是获取本类以及父类或者父接口中所有的公共方法(public修饰符修饰的)
+             *   getDeclaredMethods(),该方法是获取本类中的所有方法，包括私有的(private、protected、默认以及public)的方法。
+             */
             addUniqueMethods(uniqueMethods, currentClass.getDeclaredMethods());
 
             // we also need to look for interface methods -
@@ -355,6 +361,7 @@ public class Reflector {
 
     private void addUniqueMethods(Map<String, Method> uniqueMethods, Method[] methods) {
         for (Method currentMethod : methods) {
+            // 判断一个方法是否是桥接方法（桥接方法是JDK 1.5引入泛型后，为了使Java的泛型方法生成的字节码和1.5版本前的字节码相兼容，由编译器自动生成的方法。）
             if (!currentMethod.isBridge()) {
                 String signature = getSignature(currentMethod);
                 // check to see if the method is already known
@@ -375,6 +382,13 @@ public class Reflector {
         }
     }
 
+    /**
+     * 获得签名字符串
+     * 格式：
+     *
+     * @param method
+     * @return
+     */
     private String getSignature(Method method) {
         StringBuilder sb = new StringBuilder();
         Class<?> returnType = method.getReturnType();

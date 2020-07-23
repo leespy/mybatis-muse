@@ -16,7 +16,7 @@
 package org.apache.ibatis.reflection;
 
 /**
- * 反射工厂类
+ * 反射器工厂类
  */
 public interface ReflectorFactory {
 
@@ -29,5 +29,6 @@ public interface ReflectorFactory {
 
     void setClassCacheEnabled(boolean classCacheEnabled);
 
+    // 根据class获得反射器
     Reflector findForClass(Class<?> type);
 }

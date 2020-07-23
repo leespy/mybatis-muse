@@ -18,6 +18,8 @@ package org.apache.ibatis.plugin;
 import java.util.Properties;
 
 /**
+ *
+ *
  * @author Clinton Begin
  */
 public interface Interceptor {

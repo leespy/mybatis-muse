@@ -1,17 +1,17 @@
 /**
- * Copyright 2009-2017 the original author or authors.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *    Copyright 2009-2020 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.apache.ibatis.builder.xml;
 
@@ -79,11 +79,11 @@ public class XMLConfigBuilder extends BaseBuilder {
     /** ---------提供接收InputStream类型的配置信息构造方法--------- */
     public XMLConfigBuilder(InputStream inputStream) {this(inputStream, null, null);}
     public XMLConfigBuilder(InputStream inputStream, String environment) {this(inputStream, environment, null);}
-    // 走该方法
+
+    // 走该方法 environment=null properties=null
     public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
         this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
     }
-
 
     private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
         super(new Configuration());
@@ -117,16 +117,30 @@ public class XMLConfigBuilder extends BaseBuilder {
      */
     private void parseConfiguration(XNode root) {
         try {
-            //issue #117 read properties first
+            // 将<properties>的配置转化赋值Properties
             propertiesElement(root.evalNode("properties"));
+
+            // 将<settings>的配置转化赋值Properties，并检查Configuration中是否有对应的属性,如果没有，抛异常，终止整个解析流程。
             Properties settings = settingsAsProperties(root.evalNode("settings"));
+            /**
+             * 对settings中的vfsImp属性进行二次处理，生成实例对象，并赋值Configuration.vfsImpl
+             *
+             * 为什么解析<settings>中的值为Properties不能都在settingsAsProperties方法中完成，而要单独在loadCustomVfs中完成？
+             * 回答；由于vfsImpl配置的是Class，需要通过ClassLoader加载为对象，赋值到Configuration里，而不像其他String类型的value
+             * ，可以直接赋值进去并使用。所以单独在loadCustomVfs方法中进行了Configuration中的vfsImpl赋值操作。
+             */
             loadCustomVfs(settings);
+
+            // 将<typeAliases>的配置转化赋值Properties
             typeAliasesElement(root.evalNode("typeAliases"));
             pluginElement(root.evalNode("plugins"));
             objectFactoryElement(root.evalNode("objectFactory"));
             objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
             reflectorFactoryElement(root.evalNode("reflectorFactory"));
+
+            // 将配置信息中settings赋值给Configuration
             settingsElement(settings);
+
             // read it after objectFactory and objectWrapperFactory issue #631
             environmentsElement(root.evalNode("environments"));
             databaseIdProviderElement(root.evalNode("databaseIdProvider"));
@@ -137,14 +151,29 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
     }
 
+    /**
+     * XNode context: 只要是Configuration中存在的属性，都可以通过setting将赋值配置进去
+     *
+     * <settings>
+     *   <setting name="cacheEnabled" value="true"/>
+     * </settings>
+     *
+     * @param context
+     * @return
+     */
     private Properties settingsAsProperties(XNode context) {
         if (context == null) {
             return new Properties();
         }
+        // 场景驱动： <setting name="cacheEnabled" value="true"/> ----> Properties props = (key:cacheEnabled value:true)
         Properties props = context.getChildrenAsProperties();
-        // Check that all settings are known to the configuration class
-        MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory);
+
+        // 解析Configuration.class文件
+        MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory); // DefaultReflectorFactory
+
+        // 场景驱动：key=cacheEnabled  判断<settings>中配置的<setting name="xxx">的xxx。是否在Configuration中有set方法。
         for (Object key : props.keySet()) {
+            // 场景驱动： 如果Configuration没有setCacheEnabled方法。则抛出异常
             if (!metaConfig.hasSetter(String.valueOf(key))) {
                 throw new BuilderException(
                         "The setting " + key + " is not known.  Make sure you spelled it correctly (case sensitive).");
@@ -153,14 +182,17 @@ public class XMLConfigBuilder extends BaseBuilder {
         return props;
     }
 
+    // <setting name="vfsImpl" value="A.class, B.class, C.class"/>
     private void loadCustomVfs(Properties props) throws ClassNotFoundException {
         String value = props.getProperty("vfsImpl");
         if (value != null) {
             String[] clazzes = value.split(",");
             for (String clazz : clazzes) {
                 if (!clazz.isEmpty()) {
+                    // 通过ClassLoader加载value中配置的VFS实现类
                     @SuppressWarnings("unchecked")
                     Class<? extends VFS> vfsImpl = (Class<? extends VFS>) Resources.classForName(clazz);
+                    // 设置到Configuraiton中
                     configuration.setVfsImpl(vfsImpl);
                 }
             }
@@ -258,7 +290,7 @@ public class XMLConfigBuilder extends BaseBuilder {
             /**
              * 这两种方式都可以用来引入配置文件。但是它们又有所不同:
              * <properties resource="org/mybatis/example/config.properties"/>  --- 用来引入类路径下的资源
-             * <properties url=""/>       --- 用来引入网络路径或者磁盘路径下的资源
+             * <properties url=""/> --- 用来引入网络路径或者磁盘路径下的资源
              */
             String resource = context.getStringAttribute("resource");
             String url = context.getStringAttribute("url");
@@ -270,6 +302,7 @@ public class XMLConfigBuilder extends BaseBuilder {
                                 + "reference.  Please specify one or the other.");
             }
             if (resource != null) {
+                // 通过ClassLoader加载配置文件转换为字节输入流
                 defaults.putAll(Resources.getResourceAsProperties(resource));
             } else if (url != null) {
                 defaults.putAll(Resources.getUrlAsProperties(url));
