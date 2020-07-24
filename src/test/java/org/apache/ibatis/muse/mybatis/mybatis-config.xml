@@ -16,13 +16,21 @@
        limitations under the License.
 
 -->
-<!DOCTYPE configuration
-        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!-- 配置的顺序一样要遵循如下顺序，如果顺序错误，则会报错：
+<properties>, <settings>, <typeAliases>, <typeHandlers>, <objectFactory>, <objectWrapperFactory>, <reflectorFactory>, <plugins>, <environments>, <databaseIdProvider>, <mapper>
+-->
 
 <configuration>
 
-    <!-- autoMappingBehavior should be set in each test case -->
+    <settings>
+        <setting name="localCacheScope" value="SESSION"/>
+    </settings>
+
+    <typeAliases>
+        <package name="domain.blog"/>
+    </typeAliases>
 
     <environments default="development">
         <environment id="development">

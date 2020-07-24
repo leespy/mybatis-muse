@@ -29,8 +29,9 @@ public class MybatisTest {
     public static SqlSession getSession() {
 
         try {
-            InputStream inputStream = new FileInputStream("/Users/muse/SourceCodes/mybatis-3-mybatis-3.4.4/src"
-                    + "/test/java/org/apache/ibatis/muse/mybatis/mybatis-config.xml");
+            InputStream inputStream = new FileInputStream(
+                    "/Users/lijinlong02/alibaba/mybatis-3-mybatis-3.4"
+                            + ".4/src/test/java/org/apache/ibatis/muse/mybatis/mybatis-config.xml");
             sessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
         } catch (Exception e) {
             System.out.println(e);

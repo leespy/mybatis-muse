@@ -105,7 +105,7 @@ public class TypeAliasRegistry {
     }
 
     @SuppressWarnings("unchecked")
-    // throws class cast exception as well if types cannot be assigned
+    // eg： alias="JAVASSIST"
     public <T> Class<T> resolveAlias(String string) {
         try {
             if (string == null) {
@@ -125,12 +125,15 @@ public class TypeAliasRegistry {
         }
     }
 
+    // 根据包路径，注册下面所有的别名 eg: typeAliasPackage="org.apache.ibatis.muse.mybatis"
     public void registerAliases(String packageName) {
         registerAliases(packageName, Object.class);
     }
 
+    // eg: typeAliasPackage="domain.blogorg.apache.ibatis.muse.mybatis" superType=Object.class
     public void registerAliases(String packageName, Class<?> superType) {
         ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();
+        //
         resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
         Set<Class<? extends Class<?>>> typeSet = resolverUtil.getClasses();
         for (Class<?> type : typeSet) {

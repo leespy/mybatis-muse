@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
+ *    Copyright 2009-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -104,6 +104,7 @@ public abstract class BaseBuilder {
         }
     }
 
+    // eg： alias="JAVASSIST"
     protected Object createInstance(String alias) {
         Class<?> clazz = resolveClass(alias);
         if (clazz == null) {
@@ -116,6 +117,7 @@ public abstract class BaseBuilder {
         }
     }
 
+    // eg： alias="JAVASSIST"
     protected Class<?> resolveClass(String alias) {
         if (alias == null) {
             return null;
@@ -182,6 +184,7 @@ public abstract class BaseBuilder {
         return handler;
     }
 
+    // eg： alias="JAVASSIST"
     protected Class<?> resolveAlias(String alias) {
         return typeAliasRegistry.resolveAlias(alias);
     }

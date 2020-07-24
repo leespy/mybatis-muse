@@ -105,7 +105,7 @@ public class XMLConfigBuilder extends BaseBuilder {
             throw new BuilderException("Each XMLConfigBuilder can only be used once.");
         }
         parsed = true;
-        // 选取根节点<configuration>
+        // 解析config.xml配置文件最重要的方法。选取根节点<configuration>
         parseConfiguration(parser.evalNode("/configuration"));
         return configuration;
     }
@@ -133,6 +133,8 @@ public class XMLConfigBuilder extends BaseBuilder {
 
             // 将<typeAliases>的配置转化赋值Properties
             typeAliasesElement(root.evalNode("typeAliases"));
+
+
             pluginElement(root.evalNode("plugins"));
             objectFactoryElement(root.evalNode("objectFactory"));
             objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
@@ -210,7 +212,7 @@ public class XMLConfigBuilder extends BaseBuilder {
                 /**
                  * 可以指定一个包名，MyBatis会在包名下面搜索需要的Java Bean
                  * <typeAliases>
-                 *      <package name="domain.blog"/>
+                 *      <package name="org.apache.ibatis.muse.mybatis"/>
                  * </typeAliases>
                  * 扫描每一个在包domain.blog中的Java Bean，在没有注解的情况下，会使用Bean的首字母小写的非限定类名来作为它的别名。
                  * 比如 domain.blog.Author 的别名为 author；若有注解，则别名为其注解值。
@@ -219,7 +221,10 @@ public class XMLConfigBuilder extends BaseBuilder {
                  *      ...
                  * }
                  */
+
+                // eg：  <package name="org.apache.ibatis.muse.mybatis"/>
                 if ("package".equals(child.getName())) {
+                    // typeAliasPackage="org.apache.ibatis.muse.mybatis"
                     String typeAliasPackage = child.getStringAttribute("name");
                     configuration.getTypeAliasRegistry().registerAliases(typeAliasPackage);
                 } else {
@@ -342,7 +347,7 @@ public class XMLConfigBuilder extends BaseBuilder {
      */
     private void settingsElement(Properties props) throws Exception {
         /**
-         * 指定 MyBatis 应如何自动映射列到字段或属性。
+         * 指定MyBatis应如何自动映射列到字段或属性。
          *
          * NONE：表示取消自动映射；
          * PARTIAL：只会自动映射没有定义嵌套结果集映射的结果集（默认值）。
@@ -371,6 +376,8 @@ public class XMLConfigBuilder extends BaseBuilder {
         /**
          * 指定 Mybatis 创建具有延迟加载能力的对象所用到的代理工具。
          * CGLIB | JAVASSIST (MyBatis 3.3 or above是默认值)
+         *
+         * 场景驱动： proxyFactory="JAVASSIST"
          */
         configuration.setProxyFactory((ProxyFactory) createInstance(props.getProperty("proxyFactory")));
 

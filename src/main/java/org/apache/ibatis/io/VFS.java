@@ -1,17 +1,17 @@
 /**
- * Copyright 2009-2017 the original author or authors.
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *    Copyright 2009-2020 the original author or authors.
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
  */
 package org.apache.ibatis.io;
 
@@ -30,6 +30,8 @@ import org.apache.ibatis.logging.LogFactory;
 /**
  * Provides a very simple API for accessing resources within an application server.
  *
+ * 提供一个非常简单的API，用于访问应用服务内的资源
+ *
  * @author Ben Gunter
  */
 public abstract class VFS {
@@ -39,9 +41,11 @@ public abstract class VFS {
     public static final Class<?>[] IMPLEMENTATIONS = {JBoss6VFS.class, DefaultVFS.class};
 
     /** The list to which implementations are added by {@link #addImplClass(Class)}. */
+    // 用户自定义的VFS类集合
     public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<Class<? extends VFS>>();
 
     /** Singleton instance. */
+    // 单例 因为是
     private static VFS instance;
 
     /**
@@ -55,12 +59,14 @@ public abstract class VFS {
         }
 
         // Try the user implementations first, then the built-ins
+        // 将用户自定义个VFS类和内建的两个VFS（JBoss6VFS.class, DefaultVFS.class）加入impls中
         List<Class<? extends VFS>> impls = new ArrayList<Class<? extends VFS>>();
         impls.addAll(USER_IMPLEMENTATIONS);
         impls.addAll(Arrays.asList((Class<? extends VFS>[]) IMPLEMENTATIONS));
 
         // Try each implementation class until a valid one is found
         VFS vfs = null;
+        // 尝试对每一个impls中的VFS进行初始化，如果有可以初始化成功的，则直接返回。
         for (int i = 0; vfs == null || !vfs.isValid(); i++) {
             Class<? extends VFS> impl = impls.get(i);
             try {
@@ -197,6 +203,7 @@ public abstract class VFS {
      * @return A list containing the names of the child resources.
      * @throws IOException If I/O errors occur
      */
+    // eg: path="org/apache/ibatis/muse/mybatis"
     public List<String> list(String path) throws IOException {
         List<String> names = new ArrayList<String>();
         for (URL url : getResources(path)) {
