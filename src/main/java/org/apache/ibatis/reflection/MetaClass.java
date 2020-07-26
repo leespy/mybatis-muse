@@ -34,11 +34,13 @@ public class MetaClass {
   private ReflectorFactory reflectorFactory;
   private Reflector reflector;
 
+  // eg: type=Configuration.class reflectorFactory=new DefaultReflectorFactory()
   private MetaClass(Class<?> type, ReflectorFactory reflectorFactory) {
-	this.reflectorFactory = reflectorFactory;
+	this.reflectorFactory = reflectorFactory; // DefaultReflectorFactory实例
     this.reflector = reflectorFactory.findForClass(type);
   }
 
+  // eg: type=Configuration.class reflectorFactory=new DefaultReflectorFactory()
   public static MetaClass forClass(Class<?> type, ReflectorFactory reflectorFactory) {
     return new MetaClass(type, reflectorFactory);
   }

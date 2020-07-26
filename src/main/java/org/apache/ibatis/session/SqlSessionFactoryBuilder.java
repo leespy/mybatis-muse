@@ -94,7 +94,7 @@ public class SqlSessionFactoryBuilder {
      * @param properties
      * @return
      */
-    // environment=null properties=null
+    // eg: environment=null properties=null
     public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
         try {
             XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);

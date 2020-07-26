@@ -170,7 +170,7 @@ public class XMLConfigBuilder extends BaseBuilder {
         // 场景驱动： <setting name="cacheEnabled" value="true"/> ----> Properties props = (key:cacheEnabled value:true)
         Properties props = context.getChildrenAsProperties();
 
-        // 解析Configuration.class文件
+        // 初始化Configuration.class的反射器工厂和反射器
         MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory); // DefaultReflectorFactory
 
         // 场景驱动：key=cacheEnabled  判断<settings>中配置的<setting name="xxx">的xxx。是否在Configuration中有set方法。
@@ -210,6 +210,11 @@ public class XMLConfigBuilder extends BaseBuilder {
         if (parent != null) {
             for (XNode child : parent.getChildren()) {
                 /**
+                 * <typeAliases>
+                 *   <typeAlias type="domain.blog.User" />
+                 *   <typeAlias alias="Author" type="domain.blog.Author"/>
+                 * </typeAliases>
+                 *
                  * 可以指定一个包名，MyBatis会在包名下面搜索需要的Java Bean
                  * <typeAliases>
                  *      <package name="org.apache.ibatis.muse.mybatis"/>
@@ -221,11 +226,10 @@ public class XMLConfigBuilder extends BaseBuilder {
                  *      ...
                  * }
                  */
-
                 // eg：  <package name="org.apache.ibatis.muse.mybatis"/>
                 if ("package".equals(child.getName())) {
-                    // typeAliasPackage="org.apache.ibatis.muse.mybatis"
                     String typeAliasPackage = child.getStringAttribute("name");
+                    // eg: typeAliasPackage="org.apache.ibatis.muse.mybatis"
                     configuration.getTypeAliasRegistry().registerAliases(typeAliasPackage);
                 } else {
                     String alias = child.getStringAttribute("alias");
@@ -233,8 +237,10 @@ public class XMLConfigBuilder extends BaseBuilder {
                     try {
                         Class<?> clazz = Resources.classForName(type);
                         if (alias == null) {
+                            // eg: type="domain.blog.User"
                             typeAliasRegistry.registerAlias(clazz);
                         } else {
+                            // eg: alias="Author" type="domain.blog.Author"
                             typeAliasRegistry.registerAlias(alias, clazz);
                         }
                     } catch (ClassNotFoundException e) {
@@ -295,7 +301,7 @@ public class XMLConfigBuilder extends BaseBuilder {
             /**
              * 这两种方式都可以用来引入配置文件。但是它们又有所不同:
              * <properties resource="org/mybatis/example/config.properties"/>  --- 用来引入类路径下的资源
-             * <properties url=""/> --- 用来引入网络路径或者磁盘路径下的资源
+             * <properties url="xxxxx"/> --- 用来引入网络路径或者磁盘路径下的资源
              */
             String resource = context.getStringAttribute("resource");
             String url = context.getStringAttribute("url");

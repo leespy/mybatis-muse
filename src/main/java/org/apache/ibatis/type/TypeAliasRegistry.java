@@ -130,10 +130,10 @@ public class TypeAliasRegistry {
         registerAliases(packageName, Object.class);
     }
 
-    // eg: typeAliasPackage="domain.blogorg.apache.ibatis.muse.mybatis" superType=Object.class
+    // eg: packageName="domain.blogorg.apache.ibatis.muse.mybatis" superType=Object.class
     public void registerAliases(String packageName, Class<?> superType) {
         ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();
-        //
+        // eg：解析packageName下的所有class文件，并排查所有父类不是Object的类，保存再resolverUtil的matches集合中
         resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
         Set<Class<? extends Class<?>>> typeSet = resolverUtil.getClasses();
         for (Class<?> type : typeSet) {
@@ -146,14 +146,18 @@ public class TypeAliasRegistry {
     }
 
     public void registerAlias(Class<?> type) {
+        // eg: domain.blog.User.class ———getSimpleName()———> User
         String alias = type.getSimpleName();
+        // eg：获得User类上是的@Alias注解
         Alias aliasAnnotation = type.getAnnotation(Alias.class);
+        // eg：如果User类上使用了@Alias注解，则使用注解里指定的名字作为alias
         if (aliasAnnotation != null) {
             alias = aliasAnnotation.value();
         }
         registerAlias(alias, type);
     }
 
+    // 最终的注册别名方法
     public void registerAlias(String alias, Class<?> value) {
         if (alias == null) {
             throw new TypeException("The parameter alias cannot be null");

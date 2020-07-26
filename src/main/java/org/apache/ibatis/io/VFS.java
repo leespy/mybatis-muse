@@ -71,10 +71,10 @@ public abstract class VFS {
             Class<? extends VFS> impl = impls.get(i);
             try {
                 vfs = impl.newInstance();
+                // 虽然JBoss6VFS排在靠前位置，但是JBoss6VFS默认为false，而DefaultVFS默认为true，所以如果用户没有设置USER_IMPLEMENTATIONS。则返回DefaultVFS
                 if (vfs == null || !vfs.isValid()) {
                     if (log.isDebugEnabled()) {
-                        log.debug("VFS implementation " + impl.getName() +
-                                " is not valid in this environment.");
+                        log.debug("VFS implementation " + impl.getName() + " is not valid in this environment.");
                     }
                 }
             } catch (InstantiationException e) {
@@ -203,10 +203,11 @@ public abstract class VFS {
      * @return A list containing the names of the child resources.
      * @throws IOException If I/O errors occur
      */
-    // eg: path="org/apache/ibatis/muse/mybatis"
     public List<String> list(String path) throws IOException {
         List<String> names = new ArrayList<String>();
+        // 通过当前线程上下文的ClassLoader获得指定path下的所有URL集合
         for (URL url : getResources(path)) {
+            // eg： 调用DefaultVFS的list方法
             names.addAll(list(url, path));
         }
         return names;

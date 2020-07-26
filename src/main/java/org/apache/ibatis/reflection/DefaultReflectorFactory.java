@@ -40,14 +40,16 @@ public class DefaultReflectorFactory implements ReflectorFactory {
         this.classCacheEnabled = classCacheEnabled;
     }
 
+    // eg：type=Configuration.class
     @Override
     public Reflector findForClass(Class<?> type) {
+        // eg：如果没设置classCacheEnabled，则第一次进入时，classCacheEnabled=true
         if (classCacheEnabled) {
-            // synchronized (type) removed see issue #461
             Reflector cached = reflectorMap.get(type);
+            // eg：第一次，reflectorMap为空，所以cached一定为null
             if (cached == null) {
-                cached = new Reflector(type);
-                reflectorMap.put(type, cached);
+                cached = new Reflector(type); // eg: 初始化Configuration的反射器Reflector
+                reflectorMap.put(type, cached); // eg: 维护到reflectorMap中，key=Configuration.class  value=new Reflector(type)
             }
             return cached;
         } else {

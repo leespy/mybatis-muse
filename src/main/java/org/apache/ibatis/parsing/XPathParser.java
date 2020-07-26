@@ -256,6 +256,12 @@ public class XPathParser {
         }
     }
 
+    /**
+     * 解析输入流中的配置文件，转化为Document对象
+     *
+     * @param inputSource
+     * @return
+     */
     private Document createDocument(InputSource inputSource) {
         // important: this must only be called AFTER common constructor
         try {
@@ -291,6 +297,7 @@ public class XPathParser {
         }
     }
 
+    // eg: validation=true， variables=null entityResolver=new XMLMapperEntityResolver()
     private void commonConstructor(boolean validation, Properties variables, EntityResolver entityResolver) {
         this.validation = validation;
         this.entityResolver = entityResolver;

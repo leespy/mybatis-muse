@@ -82,6 +82,7 @@ public class ResolverUtil<T> {
         private Class<?> parent;
 
         /** Constructs an IsA test using the supplied Class as the parent class/interface. */
+        // 根据指定的入参parentType，使得matches方法可以判断传入的type是不是parentType的子类
         public IsA(Class<?> parentType) {
             this.parent = parentType;
         }
@@ -137,6 +138,7 @@ public class ResolverUtil<T> {
      *
      * @return the set of classes that have been discovered.
      */
+    // resolverUtil.find过滤后的类都存在再matches中
     public Set<Class<? extends T>> getClasses() {
         return matches;
     }
@@ -219,7 +221,9 @@ public class ResolverUtil<T> {
         String path = getPackagePath(packageName);
 
         try {
+            // eg： VFS.getInstance() 是 DefaultVFS实例
             List<String> children = VFS.getInstance().list(path);
+            // eg： org/apache/ibatis/muse/mybatis/User.class
             for (String child : children) {
                 if (child.endsWith(".class")) {
                     addIfMatching(test, child);
@@ -238,6 +242,7 @@ public class ResolverUtil<T> {
      *
      * @param packageName The Java package name to convert to a path
      */
+    // 包名转换为路径
     protected String getPackagePath(String packageName) {
         return packageName == null ? null : packageName.replace('.', '/');
     }
@@ -249,16 +254,21 @@ public class ResolverUtil<T> {
      * @param test the test used to determine if the class matches
      * @param fqn the fully qualified name of a class
      */
+    // eg: test=IsA  fqn="org/apache/ibatis/muse/mybatis/User.class"
     @SuppressWarnings("unchecked")
     protected void addIfMatching(Test test, String fqn) {
         try {
+            // eg： externalName=org.apache.ibatis.muse.mybatis.User
+            // 去掉.class，并将路径修改为包名
             String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
             ClassLoader loader = getClassLoader();
             if (log.isDebugEnabled()) {
                 log.debug("Checking to see if class " + externalName + " matches criteria [" + test + "]");
             }
 
+            // eg：加载User类文件
             Class<?> type = loader.loadClass(externalName);
+            // eg：判断User的父类是不是Object，肯定返回true，保存再matches中，后续会被调用resolverUtil.getClasses()来获取
             if (test.matches(type)) {
                 matches.add((Class<T>) type);
             }
