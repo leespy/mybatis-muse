@@ -18,12 +18,16 @@ package org.apache.ibatis.reflection.wrapper;
 import org.apache.ibatis.reflection.MetaObject;
 
 /**
+ * 对象加工工厂
+ *
  * @author Clinton Begin
  */
 public interface ObjectWrapperFactory {
 
+  // 是否对object进行加工了 true：加工了 false：未加工
   boolean hasWrapperFor(Object object);
 
+  // 获得加工对象
   ObjectWrapper getWrapperFor(MetaObject metaObject, Object object);
 
 }

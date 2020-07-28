@@ -22,6 +22,8 @@ import java.util.concurrent.ConcurrentMap;
  * 默认的反射工厂类实现
  */
 public class DefaultReflectorFactory implements ReflectorFactory {
+
+    // 开启缓存
     private boolean classCacheEnabled = true;
 
     // 每一个class文件对应一个Reflector

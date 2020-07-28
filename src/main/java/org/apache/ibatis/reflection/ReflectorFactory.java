@@ -20,13 +20,10 @@ package org.apache.ibatis.reflection;
  */
 public interface ReflectorFactory {
 
-    /**
-     * 是否开启类缓存
-     *
-     * @return
-     */
+    // 是否开启类缓存
     boolean isClassCacheEnabled();
 
+    // 设置缓存是否开启
     void setClassCacheEnabled(boolean classCacheEnabled);
 
     // 根据class获得反射器

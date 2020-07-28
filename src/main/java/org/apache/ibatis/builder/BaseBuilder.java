@@ -117,6 +117,12 @@ public abstract class BaseBuilder {
         }
     }
 
+    /**
+     * 将alias转化为Class
+     *
+     * @param alias
+     * @return
+     */
     // eg： alias="JAVASSIST"
     protected Class<?> resolveClass(String alias) {
         if (alias == null) {
@@ -184,6 +190,12 @@ public abstract class BaseBuilder {
         return handler;
     }
 
+    /**
+     * 将alias别名转化为Class
+     *
+     * @param alias
+     * @return
+     */
     // eg： alias="JAVASSIST"
     protected Class<?> resolveAlias(String alias) {
         return typeAliasRegistry.resolveAlias(alias);

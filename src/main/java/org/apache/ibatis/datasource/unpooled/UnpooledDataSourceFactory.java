@@ -38,6 +38,12 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
         this.dataSource = new UnpooledDataSource();
     }
 
+    /**
+     * <property name="driver" value="com.mysql.jdbc.Driver"/>
+     * <property name="url" value="jdbc:mysql://127.0.0.1:3306/muse?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true"/>
+     * <property name="username" value="root"/>
+     * <property name="password" value="root"/>
+     */
     @Override
     public void setProperties(Properties properties) {
         Properties driverProperties = new Properties();
@@ -47,7 +53,7 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
             if (propertyName.startsWith(DRIVER_PROPERTY_PREFIX)) {
                 String value = properties.getProperty(propertyName);
                 driverProperties.setProperty(propertyName.substring(DRIVER_PROPERTY_PREFIX_LENGTH), value);
-            } else if (metaDataSource.hasSetter(propertyName)) {
+            } else if (metaDataSource.hasSetter(propertyName)) { // UnpooledDataSource是否有对应的setter方法
                 String value = (String) properties.get(propertyName);
                 Object convertedValue = convertValue(metaDataSource, propertyName, value);
                 metaDataSource.setValue(propertyName, convertedValue);

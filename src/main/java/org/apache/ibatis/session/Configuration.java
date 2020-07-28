@@ -142,6 +142,8 @@ public class Configuration {
 
     // 对象工厂，返回结果集对象时封装POJO使用
     protected ObjectFactory objectFactory = new DefaultObjectFactory();
+
+    // 对象加工工厂，提供在构造对象的时候，对指定的对象进行特殊的加工
     protected ObjectWrapperFactory objectWrapperFactory = new DefaultObjectWrapperFactory();
 
     protected ProxyFactory proxyFactory = new JavassistProxyFactory(); // #224 Using internal Javassist instead of OGNL

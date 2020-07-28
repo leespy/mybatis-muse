@@ -104,6 +104,16 @@ public class TypeAliasRegistry {
         registerAlias("ResultSet", ResultSet.class);
     }
 
+    /**
+     * 将alias别名转化为Class
+     *
+     * 1>如果入参string已经维护在TYPE_ALIASES中，则直接获取对应的Class对象
+     * 2>如果入参string没有维护在TYPE_ALIASES中，则通过ClassLoader加载生成Class对象
+     *
+     * @param string
+     * @param <T>
+     * @return
+     */
     @SuppressWarnings("unchecked")
     // eg： alias="JAVASSIST"
     public <T> Class<T> resolveAlias(String string) {

@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2020 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.builder.xml;
 
@@ -68,17 +68,27 @@ public class XMLConfigBuilder extends BaseBuilder {
     // 反射工厂
     private ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
-
     /** ---------提供接收Reader类型的配置信息构造方法--------- */
-    public XMLConfigBuilder(Reader reader) {this(reader, null, null);}
-    public XMLConfigBuilder(Reader reader, String environment) {this(reader, environment, null);}
+    public XMLConfigBuilder(Reader reader) {
+        this(reader, null, null);
+    }
+
+    public XMLConfigBuilder(Reader reader, String environment) {
+        this(reader, environment, null);
+    }
+
     public XMLConfigBuilder(Reader reader, String environment, Properties props) {
         this(new XPathParser(reader, true, props, new XMLMapperEntityResolver()), environment, props);
     }
 
     /** ---------提供接收InputStream类型的配置信息构造方法--------- */
-    public XMLConfigBuilder(InputStream inputStream) {this(inputStream, null, null);}
-    public XMLConfigBuilder(InputStream inputStream, String environment) {this(inputStream, environment, null);}
+    public XMLConfigBuilder(InputStream inputStream) {
+        this(inputStream, null, null);
+    }
+
+    public XMLConfigBuilder(InputStream inputStream, String environment) {
+        this(inputStream, environment, null);
+    }
 
     // 走该方法 environment=null properties=null
     public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
@@ -117,13 +127,14 @@ public class XMLConfigBuilder extends BaseBuilder {
      */
     private void parseConfiguration(XNode root) {
         try {
-            // 将<properties>的配置转化赋值Properties
+            // 将<properties>的配置转化赋值Configuration的variables属性
             propertiesElement(root.evalNode("properties"));
 
             // 将<settings>的配置转化赋值Properties，并检查Configuration中是否有对应的属性,如果没有，抛异常，终止整个解析流程。
             Properties settings = settingsAsProperties(root.evalNode("settings"));
+
             /**
-             * 对settings中的vfsImp属性进行二次处理，生成实例对象，并赋值Configuration.vfsImpl
+             * 对settings中的vfsImp属性进行二次处理，生成实例对象，并赋值Configuration的vfsImpl属性
              *
              * 为什么解析<settings>中的值为Properties不能都在settingsAsProperties方法中完成，而要单独在loadCustomVfs中完成？
              * 回答；由于vfsImpl配置的是Class，需要通过ClassLoader加载为对象，赋值到Configuration里，而不像其他String类型的value
@@ -131,20 +142,28 @@ public class XMLConfigBuilder extends BaseBuilder {
              */
             loadCustomVfs(settings);
 
-            // 将<typeAliases>的配置转化赋值Properties
+            // 将<typeAliases>的配置转化赋值Configuration的typeAliasRegistry属性
             typeAliasesElement(root.evalNode("typeAliases"));
 
-
+            // 解析<plugins>标签，初始化Configuration的interceptorChain
             pluginElement(root.evalNode("plugins"));
+
+            // 解析<objectFactory>标签
             objectFactoryElement(root.evalNode("objectFactory"));
+
+            // 解析<objectWrapperFactory>标签
             objectWrapperFactoryElement(root.evalNode("objectWrapperFactory"));
+
+            // 解析<reflectorFactory>标签
             reflectorFactoryElement(root.evalNode("reflectorFactory"));
 
             // 将配置信息中settings赋值给Configuration
             settingsElement(settings);
 
-            // read it after objectFactory and objectWrapperFactory issue #631
+            // 解析<environments>标签
             environmentsElement(root.evalNode("environments"));
+
+
             databaseIdProviderElement(root.evalNode("databaseIdProvider"));
             typeHandlerElement(root.evalNode("typeHandlers"));
             mapperElement(root.evalNode("mappers"));
@@ -171,7 +190,8 @@ public class XMLConfigBuilder extends BaseBuilder {
         Properties props = context.getChildrenAsProperties();
 
         // 初始化Configuration.class的反射器工厂和反射器
-        MetaClass metaConfig = MetaClass.forClass(Configuration.class, localReflectorFactory); // DefaultReflectorFactory
+        MetaClass metaConfig =
+                MetaClass.forClass(Configuration.class, localReflectorFactory); // DefaultReflectorFactory
 
         // 场景驱动：key=cacheEnabled  判断<settings>中配置的<setting name="xxx">的xxx。是否在Configuration中有set方法。
         for (Object key : props.keySet()) {
@@ -251,38 +271,78 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
     }
 
+    /**
+     * <plugins>
+     *   <plugin interceptor="org.mybatis.example.AExampleInterceptor">
+     *     <property name="asomeProperty" value="100"/>
+     *   </plugin>
+     *   <plugin interceptor="org.mybatis.example.BExampleInterceptor">
+     *     <property name="bsomeProperty" value="200"/>
+     *   </plugin>
+     * </plugins>
+     */
     private void pluginElement(XNode parent) throws Exception {
         if (parent != null) {
+            // eg:
+            //child:
+            //<plugin interceptor="org.mybatis.example.AExampleInterceptor">
+            //   <property name="asomeProperty" value="100"/>
+            //</plugin>
             for (XNode child : parent.getChildren()) {
+                // eg: interceptor="org.mybatis.example.AExampleInterceptor"
                 String interceptor = child.getStringAttribute("interceptor");
+                // eg: 解析<property name="asomeProperty" value="100"/>，将name和value赋值properties
                 Properties properties = child.getChildrenAsProperties();
+                // 将"org.mybatis.example.AExampleInterceptor"生成Class，并调用newInstance生成对象实例
                 Interceptor interceptorInstance = (Interceptor) resolveClass(interceptor).newInstance();
+                // 将设置的参数传递给AExampleInterceptor
                 interceptorInstance.setProperties(properties);
+                // 将AExampleInterceptor维护到Configuration的interceptorChain容器中。
                 configuration.addInterceptor(interceptorInstance);
             }
         }
     }
 
+    /**
+     * <objectFactory type="org.mybatis.example.ExampleObjectFactory">
+     *   <property name="someProperty" value="100"/>
+     * </objectFactory>
+     */
     private void objectFactoryElement(XNode context) throws Exception {
         if (context != null) {
+            // eg: type="org.mybatis.example.ExampleObjectFactory"
             String type = context.getStringAttribute("type");
+            // eg: <property name="someProperty" value="100"/>
             Properties properties = context.getChildrenAsProperties();
+            // eg: 实例化ExampleObjectFactory，必须实现ObjectFactory接口
             ObjectFactory factory = (ObjectFactory) resolveClass(type).newInstance();
+            // eg: 将properties赋值给ExampleObjectFactory
             factory.setProperties(properties);
+            // eg: 将objectFactory对象赋值Configuration的objectFactory属性
             configuration.setObjectFactory(factory);
         }
     }
 
+    /**
+     * <objectWrapperFactory type="org.mybatis.example.ExampleWrapperFactory"/>
+     */
     private void objectWrapperFactoryElement(XNode context) throws Exception {
         if (context != null) {
+            // eg: type="org.mybatis.example.ExampleWrapperFactory"
             String type = context.getStringAttribute("type");
+            // eg: 实例化ExampleWrapperFactory，必须实现ObjectWrapperFactory接口
             ObjectWrapperFactory factory = (ObjectWrapperFactory) resolveClass(type).newInstance();
+            // eg: 将ExampleWrapperFactory对象赋值Configuration的objectWrapperFactory属性
             configuration.setObjectWrapperFactory(factory);
         }
     }
 
+    /**
+     * <reflectorFactory type="org.mybatis.example.ExampleReflectorFactory"/>
+     */
     private void reflectorFactoryElement(XNode context) throws Exception {
         if (context != null) {
+            // eg: type="org.mybatis.example.ExampleReflectorFactory"
             String type = context.getStringAttribute("type");
             ReflectorFactory factory = (ReflectorFactory) resolveClass(type).newInstance();
             configuration.setReflectorFactory(factory);
@@ -510,13 +570,44 @@ public class XMLConfigBuilder extends BaseBuilder {
         configuration.setConfigurationFactory(resolveClass(props.getProperty("configurationFactory")));
     }
 
+    /**
+     * <environments default="dev">
+     *   <environment id="dev">
+     *     <transactionManager type="JDBC">
+     *       <property name="..." value="..."/>
+     *     </transactionManager>
+     *     <dataSource type="POOLED">
+     *       <property name="driver" value="${driver}"/>
+     *       <property name="url" value="${url}"/>
+     *       <property name="username" value="${username}"/>
+     *       <property name="password" value="${password}"/>
+     *     </dataSource>
+     *   </environment>
+     * </environments>
+     */
     private void environmentsElement(XNode context) throws Exception {
         if (context != null) {
             if (environment == null) {
+                // eg: environment="dev"
                 environment = context.getStringAttribute("default");
             }
+            /**
+             * <environment id="dev">
+             *   <transactionManager type="JDBC">
+             *     <property name="..." value="..."/>
+             *   </transactionManager>
+             *   <dataSource type="POOLED">
+             *     <property name="driver" value="${driver}"/>
+             *     <property name="url" value="${url}"/>
+             *     <property name="username" value="${username}"/>
+             *     <property name="password" value="${password}"/>
+             *   </dataSource>
+             * </environment>
+             */
             for (XNode child : context.getChildren()) {
+                // id="dev"
                 String id = child.getStringAttribute("id");
+                // id与environment是否相同
                 if (isSpecifiedEnvironment(id)) {
                     TransactionFactory txFactory = transactionManagerElement(child.evalNode("transactionManager"));
                     DataSourceFactory dsFactory = dataSourceElement(child.evalNode("dataSource"));
@@ -549,22 +640,48 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
     }
 
+    /**
+     * <transactionManager type="JDBC">
+     *    <property name="..." value="..."/>
+     * </transactionManager>
+     */
     private TransactionFactory transactionManagerElement(XNode context) throws Exception {
         if (context != null) {
+            // type="JDBC"
             String type = context.getStringAttribute("type");
+            // <property name="..." value="..."/>生成Properties
             Properties props = context.getChildrenAsProperties();
+            // 初始化JDBC JdbcTransactionFactory
             TransactionFactory factory = (TransactionFactory) resolveClass(type).newInstance();
+            // JdbcTransactionFactory的setProperties是空方法，并未进行任何赋值
             factory.setProperties(props);
             return factory;
         }
         throw new BuilderException("Environment declaration requires a TransactionFactory.");
     }
 
+    /**
+     * <dataSource type="POOLED">
+     *   <property name="driver" value="${driver}"/>
+     *   <property name="url" value="${url}"/>
+     *   <property name="username" value="${username}"/>
+     *   <property name="password" value="${password}"/>
+     * </dataSource>
+     */
     private DataSourceFactory dataSourceElement(XNode context) throws Exception {
         if (context != null) {
+            // type="POOLED"
             String type = context.getStringAttribute("type");
+            /**
+             * <property name="driver" value="${driver}"/>
+             * <property name="url" value="${url}"/>
+             * <property name="username" value="${username}"/>
+             * <property name="password" value="${password}"/>
+             */
             Properties props = context.getChildrenAsProperties();
+            // PooledDataSourceFactory
             DataSourceFactory factory = (DataSourceFactory) resolveClass(type).newInstance();
+            // 调用父类——UnpooledDataSourceFactory的setProperties方法
             factory.setProperties(props);
             return factory;
         }
@@ -632,6 +749,12 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
     }
 
+    /**
+     * 判断是id值是被指定的环境
+     *
+     * @param id
+     * @return
+     */
     private boolean isSpecifiedEnvironment(String id) {
         if (environment == null) {
             throw new BuilderException("No environment specified.");

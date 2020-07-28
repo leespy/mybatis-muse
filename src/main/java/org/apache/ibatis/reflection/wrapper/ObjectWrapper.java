@@ -22,6 +22,8 @@ import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 加工对象
+ *
  * @author Clinton Begin
  */
 public interface ObjectWrapper {
