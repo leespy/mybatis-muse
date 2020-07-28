@@ -34,12 +34,25 @@ public class MetaClass {
   private ReflectorFactory reflectorFactory;
   private Reflector reflector;
 
+  /**
+   * 构造方法
+   *
+   * @param type
+   * @param reflectorFactory
+   */
   // eg: type=Configuration.class reflectorFactory=new DefaultReflectorFactory()
   private MetaClass(Class<?> type, ReflectorFactory reflectorFactory) {
 	this.reflectorFactory = reflectorFactory; // DefaultReflectorFactory实例
     this.reflector = reflectorFactory.findForClass(type);
   }
 
+  /**
+   * 返回MetaClass对象实例
+   *
+   * @param type
+   * @param reflectorFactory
+   * @return
+   */
   // eg: type=Configuration.class reflectorFactory=new DefaultReflectorFactory()
   public static MetaClass forClass(Class<?> type, ReflectorFactory reflectorFactory) {
     return new MetaClass(type, reflectorFactory);

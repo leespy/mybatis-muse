@@ -46,6 +46,7 @@ public class MetaObject {
     // 反射器工厂，用户通过Class获得对应的Reflector
     private ReflectorFactory reflectorFactory;
 
+    // UnpooledDataSource DefaultObjectFactory DefaultObjectWrapperFactory DefaultReflectorFactory
     private MetaObject(Object object, ObjectFactory objectFactory, ObjectWrapperFactory objectWrapperFactory,
                        ReflectorFactory reflectorFactory) {
         this.originalObject = object;
@@ -53,24 +54,29 @@ public class MetaObject {
         this.objectWrapperFactory = objectWrapperFactory;
         this.reflectorFactory = reflectorFactory;
 
+        // 加工object对象
+        // eg：object=UnpooledDataSource
         if (object instanceof ObjectWrapper) {
             this.objectWrapper = (ObjectWrapper) object;
-        } else if (objectWrapperFactory.hasWrapperFor(object)) {
+        } else if (objectWrapperFactory.hasWrapperFor(object)) { // DefaultObjectWrapperFactory默认返回false
             this.objectWrapper = objectWrapperFactory.getWrapperFor(this, object);
         } else if (object instanceof Map) {
             this.objectWrapper = new MapWrapper(this, (Map) object);
         } else if (object instanceof Collection) {
             this.objectWrapper = new CollectionWrapper(this, (Collection) object);
         } else {
+            // eg: object=UnpooledDataSource
             this.objectWrapper = new BeanWrapper(this, object);
         }
     }
 
+    // UnpooledDataSource DefaultObjectFactory DefaultObjectWrapperFactory DefaultReflectorFactory
     public static MetaObject forObject(Object object, ObjectFactory objectFactory,
                                        ObjectWrapperFactory objectWrapperFactory, ReflectorFactory reflectorFactory) {
         if (object == null) {
             return SystemMetaObject.NULL_META_OBJECT;
         } else {
+            // UnpooledDataSource DefaultObjectFactory DefaultObjectWrapperFactory DefaultReflectorFactory
             return new MetaObject(object, objectFactory, objectWrapperFactory, reflectorFactory);
         }
     }

@@ -47,15 +47,20 @@ public class UnpooledDataSourceFactory implements DataSourceFactory {
     @Override
     public void setProperties(Properties properties) {
         Properties driverProperties = new Properties();
+        // dataSource = new UnpooledDataSource();
         MetaObject metaDataSource = SystemMetaObject.forObject(dataSource);
         for (Object key : properties.keySet()) {
             String propertyName = (String) key;
+            // 获取以"driver."开头的name
             if (propertyName.startsWith(DRIVER_PROPERTY_PREFIX)) {
                 String value = properties.getProperty(propertyName);
                 driverProperties.setProperty(propertyName.substring(DRIVER_PROPERTY_PREFIX_LENGTH), value);
             } else if (metaDataSource.hasSetter(propertyName)) { // UnpooledDataSource是否有对应的setter方法
+                // value="com.mysql.jdbc.Driver"
                 String value = (String) properties.get(propertyName);
+                // convertedValue="com.mysql.jdbc.Driver"
                 Object convertedValue = convertValue(metaDataSource, propertyName, value);
+                // 赋值 propertyName="driver"  convertedValue="com.mysql.jdbc.Driver"
                 metaDataSource.setValue(propertyName, convertedValue);
             } else {
                 throw new DataSourceException("Unknown DataSource property: " + propertyName);
