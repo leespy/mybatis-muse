@@ -41,6 +41,7 @@ public class UnpooledDataSource implements DataSource {
     private Properties driverProperties;
     private static Map<String, Driver> registeredDrivers = new ConcurrentHashMap<String, Driver>();
 
+    // driver
     private String driver;
     private String url;
     private String username;
