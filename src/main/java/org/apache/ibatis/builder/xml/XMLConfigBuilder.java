@@ -163,8 +163,9 @@ public class XMLConfigBuilder extends BaseBuilder {
             // 解析<environments>标签
             environmentsElement(root.evalNode("environments"));
 
-
+            // 解析<databaseIdProvider>标签
             databaseIdProviderElement(root.evalNode("databaseIdProvider"));
+
             typeHandlerElement(root.evalNode("typeHandlers"));
             mapperElement(root.evalNode("mappers"));
         } catch (Exception e) {
@@ -607,11 +608,12 @@ public class XMLConfigBuilder extends BaseBuilder {
             for (XNode child : context.getChildren()) {
                 // id="dev"
                 String id = child.getStringAttribute("id");
-                // id与environment是否相同
+                // 如果id与environment相同，则解析配置文件
                 if (isSpecifiedEnvironment(id)) {
                     TransactionFactory txFactory = transactionManagerElement(child.evalNode("transactionManager"));
                     DataSourceFactory dsFactory = dataSourceElement(child.evalNode("dataSource"));
                     DataSource dataSource = dsFactory.getDataSource();
+                    // 构造者模式
                     Environment.Builder environmentBuilder = new Environment.Builder(id)
                             .transactionFactory(txFactory)
                             .dataSource(dataSource);
@@ -621,15 +623,25 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
     }
 
+    /**
+     * <databaseIdProvider type="DB_VENDOR">
+     *   <property name="SQL Server" value="sqlserver"/>
+     *   <property name="DB2" value="db2"/>
+     *   <property name="Oracle" value="oracle" />
+     * </databaseIdProvider>
+     */
     private void databaseIdProviderElement(XNode context) throws Exception {
         DatabaseIdProvider databaseIdProvider = null;
         if (context != null) {
+            // type="DB_VENDOR"
             String type = context.getStringAttribute("type");
-            // awful patch to keep backward compatibility
             if ("VENDOR".equals(type)) {
                 type = "DB_VENDOR";
             }
+            // 解析property子属性，生成Properties
             Properties properties = context.getChildrenAsProperties();
+
+            // 生成VendorDatabaseIdProvider对象
             databaseIdProvider = (DatabaseIdProvider) resolveClass(type).newInstance();
             databaseIdProvider.setProperties(properties);
         }

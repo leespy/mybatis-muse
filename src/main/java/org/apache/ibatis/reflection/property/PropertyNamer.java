@@ -20,19 +20,21 @@ import java.util.Locale;
 import org.apache.ibatis.reflection.ReflectionException;
 
 /**
+ * 通过方法名称获得对应的属性名称
+ *
  * @author Clinton Begin
  */
 public final class PropertyNamer {
 
+    // 单例
     private PropertyNamer() {
-        // Prevent Instantiation of Static Class
+
     }
 
     /**
      * 通过方法名称，获得属性名
      *
      * 获取以is、get、set开头的方法名，并只保留后面的字符串。将该字符串的首字母转换为小写，作为属性名称返回
-     *
      */
     public static String methodToProperty(String name) {
         if (name.startsWith("is")) {

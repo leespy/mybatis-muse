@@ -20,13 +20,16 @@ import java.util.concurrent.ConcurrentMap;
 
 /**
  * 默认的反射工厂类实现
+ *
+ * 功能：
+ *     只是使用ConcurrentHashMap来维护［key]: CLass  -------> [value]: Reflector，并提供findForClass方法来返回Reflector实例对象
  */
 public class DefaultReflectorFactory implements ReflectorFactory {
 
     // 开启缓存
     private boolean classCacheEnabled = true;
 
-    // 每一个class文件对应一个Reflector
+    // 使用ConcurrentHashMap维护每一个class文件对应一个Reflector
     private final ConcurrentMap<Class<?>, Reflector> reflectorMap = new ConcurrentHashMap<Class<?>, Reflector>();
 
     public DefaultReflectorFactory() {

@@ -25,6 +25,7 @@ import org.apache.ibatis.transaction.TransactionFactory;
  * @author Clinton Begin
  * @modify muse
  */
+// 用final修饰的class 不能被继承
 public final class Environment {
     private final String id;
     private final TransactionFactory transactionFactory;
@@ -45,6 +46,7 @@ public final class Environment {
         this.dataSource = dataSource;
     }
 
+    // Environment的构造器模式内部实现
     public static class Builder {
         private String id;
         private TransactionFactory transactionFactory;

@@ -74,6 +74,7 @@ public class VendorDatabaseIdProvider implements DatabaseIdProvider {
     }
 
     private String getDatabaseName(DataSource dataSource) throws SQLException {
+        // 通过dataSource来进行数据库连接，并获得productName，如果连接mysql，则返回"MySQL"
         String productName = getDatabaseProductName(dataSource);
         if (this.properties != null) {
             for (Map.Entry<Object, Object> property : properties.entrySet()) {

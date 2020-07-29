@@ -18,12 +18,24 @@ package org.apache.ibatis.reflection.property;
 import java.util.Iterator;
 
 /**
+ * Property标记器
+ *
+ * eg: fullname="user[1].linkman.name"
+ *
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
+
+    // name="user"
     private String name;
+
+    // indexedName="user[1]"
     private String indexedName;
+
+    // index="1"
     private String index;
+
+    // children="indexedName"
     private String children;
 
     /**
@@ -45,15 +57,20 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
         if (delim > -1) {
             // name="user[1]"
             name = fullname.substring(0, delim);
+            // children="linkman.name"
             children = fullname.substring(delim + 1);
         } else {
             name = fullname;
             children = null;
         }
+        // eg: indexedName="user[1]"
         indexedName = name;
+        // delim=4
         delim = name.indexOf('[');
         if (delim > -1) {
+            // index="1"
             index = name.substring(delim + 1, name.length() - 1);
+            // name="user"
             name = name.substring(0, delim);
         }
     }
