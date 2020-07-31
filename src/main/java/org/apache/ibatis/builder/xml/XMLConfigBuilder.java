@@ -166,7 +166,10 @@ public class XMLConfigBuilder extends BaseBuilder {
             // 解析<databaseIdProvider>标签
             databaseIdProviderElement(root.evalNode("databaseIdProvider"));
 
+            // 解析<databaseIdProvider>标签
             typeHandlerElement(root.evalNode("typeHandlers"));
+
+            // 解析<mappers>标签
             mapperElement(root.evalNode("mappers"));
         } catch (Exception e) {
             throw new BuilderException("Error parsing SQL Mapper Configuration. Cause: " + e, e);
@@ -700,23 +703,48 @@ public class XMLConfigBuilder extends BaseBuilder {
         throw new BuilderException("Environment declaration requires a DataSourceFactory.");
     }
 
+    /**
+     * <typeHandlers>
+     *     <typeHandler jdbcType="VARCHAR" javaType="date" handler="com.daily.handler.MyDateHandler" />
+     * </typeHandlers>
+     * 或者
+     * <typeHandlers>
+     *   <package name="org.mybatis.example"/>
+     * </typeHandlers>
+     */
     private void typeHandlerElement(XNode parent) throws Exception {
         if (parent != null) {
             for (XNode child : parent.getChildren()) {
                 if ("package".equals(child.getName())) {
+                    // typeHandlerPackage="org.mybatis.example"
                     String typeHandlerPackage = child.getStringAttribute("name");
+
                     typeHandlerRegistry.register(typeHandlerPackage);
                 } else {
+                    // eg: javaTypeName="date"
                     String javaTypeName = child.getStringAttribute("javaType");
+
+                    // eg: jdbcTypeName="VARCHAR"
                     String jdbcTypeName = child.getStringAttribute("jdbcType");
+
+                    // eg: handlerTypeName="com.daily.handler.MyDateHandler"
                     String handlerTypeName = child.getStringAttribute("handler");
+
+                    // eg: javaTypeClass=Date.class
                     Class<?> javaTypeClass = resolveClass(javaTypeName);
+
+                    // eg: Types.VARCHAR (JDK的rt.jar包里的类java.sql.Type)
                     JdbcType jdbcType = resolveJdbcType(jdbcTypeName);
+
+                    // eg：MyDateHandler.class
                     Class<?> typeHandlerClass = resolveClass(handlerTypeName);
+
+                    // 注册typeHandler
                     if (javaTypeClass != null) {
                         if (jdbcType == null) {
                             typeHandlerRegistry.register(javaTypeClass, typeHandlerClass);
                         } else {
+                            // javaTypeClass=Date.class  jdbcType=Types.VARCHAR  typeHandlerClass=com.daily.handler.MyDateHandler
                             typeHandlerRegistry.register(javaTypeClass, jdbcType, typeHandlerClass);
                         }
                     } else {
@@ -727,10 +755,38 @@ public class XMLConfigBuilder extends BaseBuilder {
         }
     }
 
+    /**
+     * (1) 使用相对于类路径的资源引用
+     * <mappers>
+     *   <mapper resource="org/mybatis/builder/AuthorMapper.xml"/>
+     *   <mapper resource="org/mybatis/builder/BlogMapper.xml"/>
+     *   <mapper resource="org/mybatis/builder/PostMapper.xml"/>
+     * </mappers>
+     *
+     * (2) 使用完全限定资源定位符（URL）
+     * <mappers>
+     *   <mapper url="file:///var/mappers/AuthorMapper.xml"/>
+     *   <mapper url="file:///var/mappers/BlogMapper.xml"/>
+     *   <mapper url="file:///var/mappers/PostMapper.xml"/>
+     * </mappers>
+     *
+     * (3) 使用映射器接口实现类的完全限定类名
+     * <mappers>
+     *   <mapper class="org.mybatis.builder.AuthorMapper"/>
+     *   <mapper class="org.mybatis.builder.BlogMapper"/>
+     *   <mapper class="org.mybatis.builder.PostMapper"/>
+     * </mappers>
+     *
+     * (4) 将包内的映射器接口实现全部注册为映射器
+     * <mappers>
+     *   <package name="org.mybatis.builder"/>
+     * </mappers>
+     */
     private void mapperElement(XNode parent) throws Exception {
         if (parent != null) {
             for (XNode child : parent.getChildren()) {
                 if ("package".equals(child.getName())) {
+                    // eg: mapperPackage="org.mybatis.builder"
                     String mapperPackage = child.getStringAttribute("name");
                     configuration.addMappers(mapperPackage);
                 } else {

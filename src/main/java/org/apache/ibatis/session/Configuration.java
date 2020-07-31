@@ -157,7 +157,10 @@ public class Configuration {
      */
     protected Class<?> configurationFactory;
 
+    // mapper注册器
     protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+
+    // 拦截器链
     protected final InterceptorChain interceptorChain = new InterceptorChain();
 
     // typeHandler注册器
@@ -194,6 +197,7 @@ public class Configuration {
         this.environment = environment;
     }
 
+    // 构造器初始化默认的Mybatis别名
     public Configuration() {
         typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
         typeAliasRegistry.registerAlias("MANAGED", ManagedTransactionFactory.class);

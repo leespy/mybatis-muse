@@ -75,19 +75,17 @@ public class ResolverUtil<T> {
     }
 
     /**
-     * A Test that checks to see if each class is assignable to the provided class. Note
-     * that this test will match the parent type itself if it is presented for matching.
+     * 判断传入的type类型是不是parent类型的子类或者相同类型
      */
     public static class IsA implements Test {
         private Class<?> parent;
 
-        /** Constructs an IsA test using the supplied Class as the parent class/interface. */
         // 根据指定的入参parentType，使得matches方法可以判断传入的type是不是parentType的子类
         public IsA(Class<?> parentType) {
             this.parent = parentType;
         }
 
-        /** Returns true if type is assignable to the parent type supplied in the constructor. */
+        // 判断type是否是parent相同的类型或者是parent的子类
         @Override
         public boolean matches(Class<?> type) {
             return type != null && parent.isAssignableFrom(type);
@@ -206,14 +204,7 @@ public class ResolverUtil<T> {
     }
 
     /**
-     * Scans for classes starting at the package provided and descending into subpackages.
-     * Each class is offered up to the Test as it is discovered, and if the Test returns
-     * true the class is retained.  Accumulated classes can be fetched by calling
-     * {@link #getClasses()}.
-     *
-     * @param test an instance of {@link Test} that will be used to filter classes
-     * @param packageName the name of the package from which to start scanning for
-     *        classes, e.g. {@code net.sourceforge.stripes}
+     * 返回指定packageName下的所有符合Test实例中parent指定的Class类型的所有类
      */
     // eg: test=IsA  packageName="org.apache.ibatis.muse.mybatis"
     public ResolverUtil<T> find(Test test, String packageName) {

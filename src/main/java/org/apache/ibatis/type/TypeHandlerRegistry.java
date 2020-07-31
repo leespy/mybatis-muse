@@ -342,14 +342,15 @@ public final class TypeHandlerRegistry {
         register(javaTypeReference.getRawType(), handler);
     }
 
-    // java type + jdbc type + handler
-
+    // javaTypeClass=Date.class  jdbcType=Types.VARCHAR  typeHandlerClass=com.daily.handler.MyDateHandler
     public <T> void register(Class<T> type, JdbcType jdbcType, TypeHandler<? extends T> handler) {
         register((Type) type, jdbcType, handler);
     }
 
+    // javaTypeClass=Date.class  jdbcType=Types.VARCHAR  typeHandlerClass=com.daily.handler.MyDateHandler
     private void register(Type javaType, JdbcType jdbcType, TypeHandler<?> handler) {
         if (javaType != null) {
+            // eg: 第一次进入，Map<Type, Map<JdbcType, TypeHandler<?>>> TYPE_HANDLER_MAP没有任何信息，所以map为null
             Map<JdbcType, TypeHandler<?>> map = TYPE_HANDLER_MAP.get(javaType);
             if (map == null) {
                 map = new HashMap<JdbcType, TypeHandler<?>>();
@@ -357,17 +358,14 @@ public final class TypeHandlerRegistry {
             }
             map.put(jdbcType, handler);
         }
+        // Map<Class<?>, TypeHandler<?>> ALL_TYPE_HANDLERS_MAP
         ALL_TYPE_HANDLERS_MAP.put(handler.getClass(), handler);
     }
 
-    //
-    // REGISTER CLASS
-    //
-
-    // Only handler type
 
     public void register(Class<?> typeHandlerClass) {
         boolean mappedTypeFound = false;
+        // 获取typeHandlerClass上的@MappedTypes注解
         MappedTypes mappedTypes = typeHandlerClass.getAnnotation(MappedTypes.class);
         if (mappedTypes != null) {
             for (Class<?> javaTypeClass : mappedTypes.value()) {
@@ -390,8 +388,8 @@ public final class TypeHandlerRegistry {
         register(javaTypeClass, getInstance(javaTypeClass, typeHandlerClass));
     }
 
-    // java type + jdbc type + handler type
 
+    // javaTypeClass=Date.class  jdbcType=Types.VARCHAR  typeHandlerClass=com.daily.handler.MyDateHandler
     public void register(Class<?> javaTypeClass, JdbcType jdbcType, Class<?> typeHandlerClass) {
         register(javaTypeClass, jdbcType, getInstance(javaTypeClass, typeHandlerClass));
     }
@@ -418,10 +416,10 @@ public final class TypeHandlerRegistry {
         }
     }
 
-    // scan
-
+    // packageName="org.mybatis.example"
     public void register(String packageName) {
-        ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<Class<?>>();
+        ResolverUtil<Class<?>> resolverUtil = new ResolverUtil<>();
+        // 查找所有实现了TypeHandler接口的类
         resolverUtil.find(new ResolverUtil.IsA(TypeHandler.class), packageName);
         Set<Class<? extends Class<?>>> handlerSet = resolverUtil.getClasses();
         for (Class<?> type : handlerSet) {
@@ -431,8 +429,6 @@ public final class TypeHandlerRegistry {
             }
         }
     }
-
-    // get information
 
     /**
      * @since 3.2.2
