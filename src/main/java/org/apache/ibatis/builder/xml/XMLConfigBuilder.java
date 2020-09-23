@@ -68,7 +68,9 @@ public class XMLConfigBuilder extends BaseBuilder {
     // 反射工厂
     private ReflectorFactory localReflectorFactory = new DefaultReflectorFactory();
 
-    /** ---------提供接收Reader类型的配置信息构造方法--------- */
+    /**
+     * ---------提供接收Reader类型的配置信息构造方法---------
+     */
     public XMLConfigBuilder(Reader reader) {
         this(reader, null, null);
     }
@@ -81,7 +83,9 @@ public class XMLConfigBuilder extends BaseBuilder {
         this(new XPathParser(reader, true, props, new XMLMapperEntityResolver()), environment, props);
     }
 
-    /** ---------提供接收InputStream类型的配置信息构造方法--------- */
+    /**
+     * ---------提供接收InputStream类型的配置信息构造方法---------
+     */
     public XMLConfigBuilder(InputStream inputStream) {
         this(inputStream, null, null);
     }
@@ -180,7 +184,7 @@ public class XMLConfigBuilder extends BaseBuilder {
      * XNode context: 只要是Configuration中存在的属性，都可以通过setting将赋值配置进去
      *
      * <settings>
-     *   <setting name="cacheEnabled" value="true"/>
+     * <setting name="cacheEnabled" value="true"/>
      * </settings>
      *
      * @param context
@@ -277,12 +281,12 @@ public class XMLConfigBuilder extends BaseBuilder {
 
     /**
      * <plugins>
-     *   <plugin interceptor="org.mybatis.example.AExampleInterceptor">
-     *     <property name="asomeProperty" value="100"/>
-     *   </plugin>
-     *   <plugin interceptor="org.mybatis.example.BExampleInterceptor">
-     *     <property name="bsomeProperty" value="200"/>
-     *   </plugin>
+     * <plugin interceptor="org.mybatis.example.AExampleInterceptor">
+     * <property name="asomeProperty" value="100"/>
+     * </plugin>
+     * <plugin interceptor="org.mybatis.example.BExampleInterceptor">
+     * <property name="bsomeProperty" value="200"/>
+     * </plugin>
      * </plugins>
      */
     private void pluginElement(XNode parent) throws Exception {
@@ -309,7 +313,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 
     /**
      * <objectFactory type="org.mybatis.example.ExampleObjectFactory">
-     *   <property name="someProperty" value="100"/>
+     * <property name="someProperty" value="100"/>
      * </objectFactory>
      */
     private void objectFactoryElement(XNode context) throws Exception {
@@ -395,21 +399,21 @@ public class XMLConfigBuilder extends BaseBuilder {
      * 解析<settings>配置参数
      *
      * <settings>
-     *   <setting name="cacheEnabled" value="true"/>
-     *   <setting name="lazyLoadingEnabled" value="true"/>
-     *   <setting name="multipleResultSetsEnabled" value="true"/>
-     *   <setting name="useColumnLabel" value="true"/>
-     *   <setting name="useGeneratedKeys" value="false"/>
-     *   <setting name="autoMappingBehavior" value="PARTIAL"/>
-     *   <setting name="autoMappingUnknownColumnBehavior" value="WARNING"/>
-     *   <setting name="defaultExecutorType" value="SIMPLE"/>
-     *   <setting name="defaultStatementTimeout" value="25"/>
-     *   <setting name="defaultFetchSize" value="100"/>
-     *   <setting name="safeRowBoundsEnabled" value="false"/>
-     *   <setting name="mapUnderscoreToCamelCase" value="false"/>
-     *   <setting name="localCacheScope" value="SESSION"/>
-     *   <setting name="jdbcTypeForNull" value="OTHER"/>
-     *   <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+     * <setting name="cacheEnabled" value="true"/>
+     * <setting name="lazyLoadingEnabled" value="true"/>
+     * <setting name="multipleResultSetsEnabled" value="true"/>
+     * <setting name="useColumnLabel" value="true"/>
+     * <setting name="useGeneratedKeys" value="false"/>
+     * <setting name="autoMappingBehavior" value="PARTIAL"/>
+     * <setting name="autoMappingUnknownColumnBehavior" value="WARNING"/>
+     * <setting name="defaultExecutorType" value="SIMPLE"/>
+     * <setting name="defaultStatementTimeout" value="25"/>
+     * <setting name="defaultFetchSize" value="100"/>
+     * <setting name="safeRowBoundsEnabled" value="false"/>
+     * <setting name="mapUnderscoreToCamelCase" value="false"/>
+     * <setting name="localCacheScope" value="SESSION"/>
+     * <setting name="jdbcTypeForNull" value="OTHER"/>
+     * <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
      * </settings>
      *
      * @param props
@@ -576,17 +580,17 @@ public class XMLConfigBuilder extends BaseBuilder {
 
     /**
      * <environments default="dev">
-     *   <environment id="dev">
-     *     <transactionManager type="JDBC">
-     *       <property name="..." value="..."/>
-     *     </transactionManager>
-     *     <dataSource type="POOLED">
-     *       <property name="driver" value="${driver}"/>
-     *       <property name="url" value="${url}"/>
-     *       <property name="username" value="${username}"/>
-     *       <property name="password" value="${password}"/>
-     *     </dataSource>
-     *   </environment>
+     * <environment id="dev">
+     * <transactionManager type="JDBC">
+     * <property name="..." value="..."/>
+     * </transactionManager>
+     * <dataSource type="POOLED">
+     * <property name="driver" value="${driver}"/>
+     * <property name="url" value="${url}"/>
+     * <property name="username" value="${username}"/>
+     * <property name="password" value="${password}"/>
+     * </dataSource>
+     * </environment>
      * </environments>
      */
     private void environmentsElement(XNode context) throws Exception {
@@ -628,9 +632,9 @@ public class XMLConfigBuilder extends BaseBuilder {
 
     /**
      * <databaseIdProvider type="DB_VENDOR">
-     *   <property name="SQL Server" value="sqlserver"/>
-     *   <property name="DB2" value="db2"/>
-     *   <property name="Oracle" value="oracle" />
+     * <property name="SQL Server" value="sqlserver"/>
+     * <property name="DB2" value="db2"/>
+     * <property name="Oracle" value="oracle" />
      * </databaseIdProvider>
      */
     private void databaseIdProviderElement(XNode context) throws Exception {
@@ -657,7 +661,7 @@ public class XMLConfigBuilder extends BaseBuilder {
 
     /**
      * <transactionManager type="JDBC">
-     *    <property name="..." value="..."/>
+     * <property name="..." value="..."/>
      * </transactionManager>
      */
     private TransactionFactory transactionManagerElement(XNode context) throws Exception {
@@ -677,10 +681,10 @@ public class XMLConfigBuilder extends BaseBuilder {
 
     /**
      * <dataSource type="POOLED">
-     *   <property name="driver" value="${driver}"/>
-     *   <property name="url" value="${url}"/>
-     *   <property name="username" value="${username}"/>
-     *   <property name="password" value="${password}"/>
+     * <property name="driver" value="${driver}"/>
+     * <property name="url" value="${url}"/>
+     * <property name="username" value="${username}"/>
+     * <property name="password" value="${password}"/>
      * </dataSource>
      */
     private DataSourceFactory dataSourceElement(XNode context) throws Exception {
@@ -705,11 +709,11 @@ public class XMLConfigBuilder extends BaseBuilder {
 
     /**
      * <typeHandlers>
-     *     <typeHandler jdbcType="VARCHAR" javaType="date" handler="com.daily.handler.MyDateHandler" />
+     * <typeHandler jdbcType="VARCHAR" javaType="date" handler="com.daily.handler.MyDateHandler" />
      * </typeHandlers>
      * 或者
      * <typeHandlers>
-     *   <package name="org.mybatis.example"/>
+     * <package name="org.mybatis.example"/>
      * </typeHandlers>
      */
     private void typeHandlerElement(XNode parent) throws Exception {
@@ -744,7 +748,8 @@ public class XMLConfigBuilder extends BaseBuilder {
                         if (jdbcType == null) {
                             typeHandlerRegistry.register(javaTypeClass, typeHandlerClass);
                         } else {
-                            // javaTypeClass=Date.class  jdbcType=Types.VARCHAR  typeHandlerClass=com.daily.handler.MyDateHandler
+                            // javaTypeClass=Date.class  jdbcType=Types.VARCHAR  typeHandlerClass=com.daily.handler
+                            // .MyDateHandler
                             typeHandlerRegistry.register(javaTypeClass, jdbcType, typeHandlerClass);
                         }
                     } else {
@@ -758,28 +763,28 @@ public class XMLConfigBuilder extends BaseBuilder {
     /**
      * (1) 使用相对于类路径的资源引用
      * <mappers>
-     *   <mapper resource="org/mybatis/builder/AuthorMapper.xml"/>
-     *   <mapper resource="org/mybatis/builder/BlogMapper.xml"/>
-     *   <mapper resource="org/mybatis/builder/PostMapper.xml"/>
+     * <mapper resource="org/mybatis/builder/AuthorMapper.xml"/>
+     * <mapper resource="org/mybatis/builder/BlogMapper.xml"/>
+     * <mapper resource="org/mybatis/builder/PostMapper.xml"/>
      * </mappers>
-     *
+     * <p>
      * (2) 使用完全限定资源定位符（URL）
      * <mappers>
-     *   <mapper url="file:///var/mappers/AuthorMapper.xml"/>
-     *   <mapper url="file:///var/mappers/BlogMapper.xml"/>
-     *   <mapper url="file:///var/mappers/PostMapper.xml"/>
+     * <mapper url="file:///var/mappers/AuthorMapper.xml"/>
+     * <mapper url="file:///var/mappers/BlogMapper.xml"/>
+     * <mapper url="file:///var/mappers/PostMapper.xml"/>
      * </mappers>
-     *
+     * <p>
      * (3) 使用映射器接口实现类的完全限定类名
      * <mappers>
-     *   <mapper class="org.mybatis.builder.AuthorMapper"/>
-     *   <mapper class="org.mybatis.builder.BlogMapper"/>
-     *   <mapper class="org.mybatis.builder.PostMapper"/>
+     * <mapper class="org.mybatis.builder.AuthorMapper"/>
+     * <mapper class="org.mybatis.builder.BlogMapper"/>
+     * <mapper class="org.mybatis.builder.PostMapper"/>
      * </mappers>
-     *
+     * <p>
      * (4) 将包内的映射器接口实现全部注册为映射器
      * <mappers>
-     *   <package name="org.mybatis.builder"/>
+     * <package name="org.mybatis.builder"/>
      * </mappers>
      */
     private void mapperElement(XNode parent) throws Exception {
