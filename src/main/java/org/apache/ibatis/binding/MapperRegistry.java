@@ -27,26 +27,39 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Mapper接口及其对应的代理对象工厂的注册中心
+ *
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss
  */
 public class MapperRegistry {
 
+    // Configuration对象，MyBatis全局唯一的配置对象，其中包含了所有配置信息
     private final Configuration config;
+    // 记录了Mapper接口与对应MapperProxyFactory之间的关系
     private final Map<Class<?>, MapperProxyFactory<?>> knownMappers = new HashMap();
 
     public MapperRegistry(Configuration config) {
         this.config = config;
     }
 
+    // eg1: type=UserMapper.class
     @SuppressWarnings("unchecked")
     public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+        /**
+         * 加载mybatis-config.xml配置的<mapper>配置，根据指定type，查找对应的MapperProxyFactory对象
+         **/
+        // eg1: 获得UserMapper的mapperProxyFactory
         final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
+        /**
+         * 如果没配置<mapper>，则找不到对应的MapperProxyFactory，抛出BindingException异常
+         */
         if (mapperProxyFactory == null) {
             throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
         }
         try {
+            /** 使用该工厂类生成MapperProxy的代理对象*/
             return mapperProxyFactory.newInstance(sqlSession);
         } catch (Exception e) {
             throw new BindingException("Error getting mapper instance. Cause: " + e, e);
@@ -59,16 +72,14 @@ public class MapperRegistry {
 
     public <T> void addMapper(Class<T> type) {
         if (type.isInterface()) {
-            // 是否之前已经添加到了knownMappers中
+            // 检测是否已经加载过该接口
             if (hasMapper(type)) {
                 throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
             }
             boolean loadCompleted = false;
             try {
                 knownMappers.put(type, new MapperProxyFactory<T>(type));
-                // It's important that the type is added before the parser is run
-                // otherwise the binding may automatically be attempted by the
-                // mapper parser. If the type is already known, it won't try.
+                // 涉及XML解析和注解的处理
                 MapperAnnotationBuilder parser = new MapperAnnotationBuilder(config, type);
                 parser.parse();
                 loadCompleted = true;

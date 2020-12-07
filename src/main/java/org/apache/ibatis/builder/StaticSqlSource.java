@@ -41,8 +41,12 @@ public class StaticSqlSource implements SqlSource {
     this.configuration = configuration;
   }
 
+  // eg1: parameterObject={"id":2L, "param1":2L}
   @Override
   public BoundSql getBoundSql(Object parameterObject) {
+    // eg1: sql="select id, name, age from tb_user where id = ?"
+    //      parameterMappings[0] = {property='id', mode=IN, javaType=class java.lang.Long, jdbcType=null, numericScale=null, resultMapId='null', jdbcTypeName='null', expression='null'}
+    //      parameterObject = {"id": 2L, "param1", 2L}
     return new BoundSql(configuration, sql, parameterMappings, parameterObject);
   }
 

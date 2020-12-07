@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2020 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.session;
 
@@ -105,7 +105,9 @@ public class Configuration {
     protected boolean safeResultHandlerEnabled = true;
     protected boolean mapUnderscoreToCamelCase;
 
-    /** 延迟加载属性 **/
+    /**
+     * 延迟加载属性
+     **/
     // 对任意延迟属性的调用会使带有延迟加载属性的对象完整加载。true：按照层级加载策略（默认）  false：按照调用要求进行加载
     protected boolean aggressiveLazyLoading;
     // 是否开启延迟加载功能
@@ -578,20 +580,37 @@ public class Configuration {
         return resultSetHandler;
     }
 
+    /**
+     * 构建RoutingStatementHandler，并添加到拦截器链interceptorChain中
+     */
+    // eg1: parameter = {"id": 2L, "param1", 2L}  rowBounds = new RowBounds() resultHandler = null
     public StatementHandler newStatementHandler(Executor executor, MappedStatement mappedStatement,
                                                 Object parameterObject, RowBounds rowBounds,
                                                 ResultHandler resultHandler, BoundSql boundSql) {
-        StatementHandler statementHandler =
-                new RoutingStatementHandler(executor, mappedStatement, parameterObject, rowBounds, resultHandler,
-                        boundSql);
+        StatementHandler statementHandler = new RoutingStatementHandler(executor, mappedStatement, parameterObject,
+                rowBounds, resultHandler, boundSql);
+        // eg1: interceptorChain中是空Chain，由于interceptorChain中没有执行addInterceptor()来添加Interceptor，所以执行pluginAll这个也是徒劳的。
         statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
         return statementHandler;
     }
 
+    /**
+     * 创建Executor
+     *
+     * @param transaction
+     * @return
+     */
     public Executor newExecutor(Transaction transaction) {
         return newExecutor(transaction, defaultExecutorType);
     }
 
+    /**
+     * 创建Executor
+     *
+     * @param transaction
+     * @param executorType  SIMPLE(默认), REUSE, BATCH
+     * @return
+     */
     public Executor newExecutor(Transaction transaction, ExecutorType executorType) {
         executorType = executorType == null ? defaultExecutorType : executorType;
         executorType = executorType == null ? ExecutorType.SIMPLE : executorType;
@@ -606,6 +625,7 @@ public class Configuration {
         if (cacheEnabled) {
             executor = new CachingExecutor(executor);
         }
+        // 在executor完成创建之后，会通过interceptorChain来添加插件
         executor = (Executor) interceptorChain.pluginAll(executor);
         return executor;
     }
@@ -738,14 +758,19 @@ public class Configuration {
         return incompleteMethods;
     }
 
+    // eg1: id="mapper.UserMapper.getUserById"
     public MappedStatement getMappedStatement(String id) {
         return this.getMappedStatement(id, true);
     }
 
+    // eg1: id="mapper.UserMapper.getUserById" validateIncompleteStatements=true
     public MappedStatement getMappedStatement(String id, boolean validateIncompleteStatements) {
+        // eg1: validateIncompleteStatements=true   (incomplete不完整的)
         if (validateIncompleteStatements) {
+            // eg1: 执行该方法
             buildAllStatements();
         }
+        // 返回"mapper.UserMapper.getUserById"对应的mappedStatements
         return mappedStatements.get(id);
     }
 
@@ -769,6 +794,7 @@ public class Configuration {
         mapperRegistry.addMapper(type);
     }
 
+    // eg1: type=UserMapper.class sqlSession=DefaultSqlSession实例
     public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
         return mapperRegistry.getMapper(type, sqlSession);
     }
@@ -777,14 +803,22 @@ public class Configuration {
         return mapperRegistry.hasMapper(type);
     }
 
+    // eg1: statementName="mapper.UserMapper.getUserById"
     public boolean hasStatement(String statementName) {
         return hasStatement(statementName, true);
     }
 
+    // eg1: statementName = "mapper.UserMapper.getUserById"
+    //      validateIncompleteStatements = true
     public boolean hasStatement(String statementName, boolean validateIncompleteStatements) {
         if (validateIncompleteStatements) {
+            // eg1:
             buildAllStatements();
         }
+        /**
+         * mappedStatements里保存了所有xml中配置的 方法名：MappedStatement  和  类全路径名+方法名：MappedStatement
+         */
+        // eg1: mapper.UserMapper.getUserById对应的MappedStatement是存在的，因为UserMapper.java和UserMapper.xml都配置了，返回true
         return mappedStatements.containsKey(statementName);
     }
 
@@ -798,24 +832,28 @@ public class Configuration {
      * statement validation.
      */
     protected void buildAllStatements() {
+        // eg1: incompleteResultMaps为空
         if (!incompleteResultMaps.isEmpty()) {
             synchronized(incompleteResultMaps) {
                 // This always throws a BuilderException.
                 incompleteResultMaps.iterator().next().resolve();
             }
         }
+        // eg1: incompleteResultMaps为空
         if (!incompleteCacheRefs.isEmpty()) {
             synchronized(incompleteCacheRefs) {
                 // This always throws a BuilderException.
                 incompleteCacheRefs.iterator().next().resolveCacheRef();
             }
         }
+        // eg1: incompleteResultMaps为空
         if (!incompleteStatements.isEmpty()) {
             synchronized(incompleteStatements) {
                 // This always throws a BuilderException.
                 incompleteStatements.iterator().next().parseStatementNode();
             }
         }
+        // eg1: incompleteResultMaps为空
         if (!incompleteMethods.isEmpty()) {
             synchronized(incompleteMethods) {
                 // This always throws a BuilderException.

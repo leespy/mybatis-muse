@@ -47,13 +47,14 @@ public class BoundSql {
   private Object parameterObject;
 
   private Map<String, Object> additionalParameters;
+
   private MetaObject metaParameters;
 
   public BoundSql(Configuration configuration, String sql, List<ParameterMapping> parameterMappings, Object parameterObject) {
-    this.sql = sql;
-    this.parameterMappings = parameterMappings;
-    this.parameterObject = parameterObject;
-    this.additionalParameters = new HashMap<String, Object>();
+    this.sql = sql; // eg1: "select id, name, age from tb_user where id = ?"
+    this.parameterMappings = parameterMappings; // eg1: parameterMappings[0] = {property='id', mode=IN, javaType=class java.lang.Long, jdbcType=null, numericScale=null, resultMapId='null', jdbcTypeName='null', expression='null'}
+    this.parameterObject = parameterObject; // eg1: {"id": 2L, "param1", 2L}
+    this.additionalParameters = new HashMap<>();
     this.metaParameters = configuration.newMetaObject(additionalParameters);
   }
 
@@ -69,8 +70,11 @@ public class BoundSql {
     return parameterObject;
   }
 
+  // eg1: name = "id"
   public boolean hasAdditionalParameter(String name) {
+    // eg1: paramName = "id"
     String paramName = new PropertyTokenizer(name).getName();
+    // eg1: additionalParameters是空集合，所以返回false
     return additionalParameters.containsKey(paramName);
   }
 

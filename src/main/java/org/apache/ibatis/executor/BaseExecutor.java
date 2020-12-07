@@ -1,17 +1,17 @@
 /**
- *    Copyright 2009-2020 the original author or authors.
- *
- *    Licensed under the Apache License, Version 2.0 (the "License");
- *    you may not use this file except in compliance with the License.
- *    You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *    Unless required by applicable law or agreed to in writing, software
- *    distributed under the License is distributed on an "AS IS" BASIS,
- *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *    See the License for the specific language governing permissions and
- *    limitations under the License.
+ * Copyright 2009-2020 the original author or authors.
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.apache.ibatis.executor;
 
@@ -137,24 +137,30 @@ public abstract class BaseExecutor implements Executor {
         return query(ms, parameter, rowBounds, resultHandler, key, boundSql);
     }
 
+    // eg1: parameter = {"id": 2L, "param1", 2L}  rowBounds = new RowBounds() resultHandler = null
     @SuppressWarnings("unchecked")
     @Override
     public <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler,
                              CacheKey key, BoundSql boundSql) throws SQLException {
         ErrorContext.instance().resource(ms.getResource()).activity("executing a query").object(ms.getId());
+        // eg1: closed = false
         if (closed) {
             throw new ExecutorException("Executor was closed.");
         }
+        // eg1: queryStack = 0  ms.isFlushCacheRequired() = false
         if (queryStack == 0 && ms.isFlushCacheRequired()) {
             clearLocalCache();
         }
         List<E> list;
         try {
-            queryStack++;
+            queryStack++; // eg1: queryStack = 1
+            // eg1: resultHandler = null localCache.getObject(key) = null
             list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
+            // eg1: list = null
             if (list != null) {
                 handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
             } else {
+                // eg1: parameter = {"id": 2L, "param1", 2L}  rowBounds = new RowBounds() resultHandler = null
                 list = queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);
             }
         } finally {
@@ -195,40 +201,48 @@ public abstract class BaseExecutor implements Executor {
         }
     }
 
+    // eg1: delegate=SimpleExecutor(BaseExecutor) parameterObject={"id":2L, "param1":2L} rowBounds=new RowBounds()
     @Override
     public CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
         if (closed) {
             throw new ExecutorException("Executor was closed.");
         }
         CacheKey cacheKey = new CacheKey();
-        cacheKey.update(ms.getId());
-        cacheKey.update(rowBounds.getOffset());
-        cacheKey.update(rowBounds.getLimit());
-        cacheKey.update(boundSql.getSql());
+        cacheKey.update(ms.getId()); // eg1: ms.getId() = "mapper.UserMapper.getUserById"
+        cacheKey.update(rowBounds.getOffset()); // eg1: rowBounds.getOffset() = 0
+        cacheKey.update(rowBounds.getLimit()); // eg1: rowBounds.getLimit() = Integer.MAX_VALUE = 2147483647
+        cacheKey.update(boundSql.getSql()); // eg1: boundSql.getSql() = "select id, name, age from tb_user where id = ?"
+
+        // eg1: parameterMappings[0] = {property='id', mode=IN, javaType=class java.lang.Long, jdbcType=null, numericScale=null, resultMapId='null', jdbcTypeName='null', expression='null'}
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
         TypeHandlerRegistry typeHandlerRegistry = ms.getConfiguration().getTypeHandlerRegistry();
-        // mimic DefaultParameterHandler logic
+        // eg1: mimic DefaultParameterHandler logic
         for (ParameterMapping parameterMapping : parameterMappings) {
+            // eg1: parameterMapping.getMode() = mode = IN
             if (parameterMapping.getMode() != ParameterMode.OUT) {
                 Object value;
-                String propertyName = parameterMapping.getProperty();
-                if (boundSql.hasAdditionalParameter(propertyName)) {
+                String propertyName = parameterMapping.getProperty(); // eg1: propertyName = property = "id"
+                if (boundSql.hasAdditionalParameter(propertyName)) { // eg1: false
                     value = boundSql.getAdditionalParameter(propertyName);
-                } else if (parameterObject == null) {
+                } else if (parameterObject == null) { // eg1: parameterObject = {"id": 2L, "param1", 2L}
                     value = null;
-                } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) {
+                } else if (typeHandlerRegistry.hasTypeHandler(parameterObject.getClass())) { // eg1: false
                     value = parameterObject;
                 } else {
+                    // eg1: parameterObject = {"id": 2L, "param1", 2L}
                     MetaObject metaObject = configuration.newMetaObject(parameterObject);
+                    // eg1: propertyName = 2
                     value = metaObject.getValue(propertyName);
                 }
                 cacheKey.update(value);
             }
         }
+        // eg1: 因为设置了<environments default="dev">，所以Environment不为null
         if (configuration.getEnvironment() != null) {
-            // issue #176
+            // eg1: configuration.getEnvironment().getId() = "dev"
             cacheKey.update(configuration.getEnvironment().getId());
         }
+        // eg1: -445449180:-48278933:mapper.UserMapper.getUserById:0:2147483647:select id, name, age from tb_user where id = ?:2:dev
         return cacheKey;
     }
 
@@ -324,12 +338,15 @@ public abstract class BaseExecutor implements Executor {
         }
     }
 
+    // eg1: parameter = {"id": 2L, "param1", 2L}  rowBounds = new RowBounds() resultHandler = null
     private <E> List<E> queryFromDatabase(MappedStatement ms, Object parameter, RowBounds rowBounds,
                                           ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
             throws SQLException {
         List<E> list;
+        // eg1: key = -445449180:-48278933:mapper.UserMapper.getUserById:0:2147483647:select id, name, age from tb_user where id = ?:2:dev
         localCache.putObject(key, EXECUTION_PLACEHOLDER);
         try {
+            // eg1: SimpleExecutor.doQuery parameter = {"id": 2L, "param1", 2L}  rowBounds = new RowBounds() resultHandler = null
             list = doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
         } finally {
             localCache.removeObject(key);
@@ -388,7 +405,7 @@ public abstract class BaseExecutor implements Executor {
         public void load() {
             @SuppressWarnings("unchecked")
             // we suppose we get back a List
-                    List<Object> list = (List<Object>) localCache.getObject(key);
+            List<Object> list = (List<Object>) localCache.getObject(key);
             Object value = resultExtractor.extractObjectFromList(list, targetType);
             resultObject.setValue(property, value);
         }

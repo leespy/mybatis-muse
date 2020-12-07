@@ -168,7 +168,9 @@ public final class TypeHandlerRegistry {
         return hasTypeHandler(javaTypeReference, null);
     }
 
+    // eg1: javaType=vo.User.class jdbcType=null
     public boolean hasTypeHandler(Class<?> javaType, JdbcType jdbcType) {
+        // eg1: getTypeHandler((Type) javaType, jdbcType)=null
         return javaType != null && getTypeHandler((Type) javaType, jdbcType) != null;
     }
 
@@ -200,10 +202,12 @@ public final class TypeHandlerRegistry {
         return getTypeHandler(javaTypeReference.getRawType(), jdbcType);
     }
 
+    // eg1: javaType=vo.User.class jdbcType=null
     @SuppressWarnings("unchecked")
     private <T> TypeHandler<T> getTypeHandler(Type type, JdbcType jdbcType) {
         Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = getJdbcHandlerMap(type);
         TypeHandler<?> handler = null;
+        // eg1: jdbcHandlerMap=null
         if (jdbcHandlerMap != null) {
             handler = jdbcHandlerMap.get(jdbcType);
             if (handler == null) {
@@ -215,12 +219,15 @@ public final class TypeHandlerRegistry {
             }
         }
         // type drives generics here
-        return (TypeHandler<T>) handler;
+        return (TypeHandler<T>) handler; // eg1: handler=null
     }
 
+    // eg1: javaType=vo.User.class
     @SuppressWarnings({"rawtypes", "unchecked"})
     private Map<JdbcType, TypeHandler<?>> getJdbcHandlerMap(Type type) {
+        // eg1: jdbcHandlerMap={}
         Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = TYPE_HANDLER_MAP.get(type);
+        // eg1: true
         if (NULL_TYPE_HANDLER_MAP.equals(jdbcHandlerMap)) {
             return null;
         }

@@ -18,7 +18,7 @@ package org.apache.ibatis.plugin;
 import java.util.Properties;
 
 /**
- *
+ * 截击器
  *
  * @author Clinton Begin
  */

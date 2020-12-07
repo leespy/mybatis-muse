@@ -139,8 +139,17 @@ public class MetaObject {
         }
     }
 
+    // eg1: name="id"  value=2L
+    // eg1: name="name"  value="muse2"
+    // eg1: name="age"  value=24
     public void setValue(String name, Object value) {
+        // eg1: name="id"
+        // eg1: name="name"
+        // eg1: name="age"
         PropertyTokenizer prop = new PropertyTokenizer(name);
+        // eg1: prop.hasNext()=false
+        // eg1: prop.hasNext()=false
+        // eg1: prop.hasNext()=false
         if (prop.hasNext()) {
             MetaObject metaValue = metaObjectForProperty(prop.getIndexedName());
             if (metaValue == SystemMetaObject.NULL_META_OBJECT) {
@@ -153,6 +162,9 @@ public class MetaObject {
             }
             metaValue.setValue(prop.getChildren(), value);
         } else {
+            // eg1: value=2L
+            // eg1: value="muse2"
+            // eg1: value=24
             objectWrapper.set(prop, value);
         }
     }

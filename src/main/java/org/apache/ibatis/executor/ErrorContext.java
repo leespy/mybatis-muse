@@ -34,6 +34,11 @@ public class ErrorContext {
   private ErrorContext() {
   }
 
+  /**
+   * 将ErrorContext设置到了ThreadLocal中
+   *
+   * @return
+   */
   public static ErrorContext instance() {
     ErrorContext context = LOCAL.get();
     if (context == null) {

@@ -44,8 +44,12 @@ public class TypeParameterResolver {
    * @return The return type of the method as {@link Type}. If it has type parameters in the declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.
    */
+  // eg1: method = public abstract vo.User mapper.UserMapper.getUserById(java.lang.Long)
+  //      srcType = interface mapper.UserMapper
   public static Type resolveReturnType(Method method, Type srcType) {
+    // eg1: returnType = class vo.User
     Type returnType = method.getGenericReturnType();
+    // eg1: declaringClass = interface mapper.UserMapper
     Class<?> declaringClass = method.getDeclaringClass();
     return resolveType(returnType, srcType, declaringClass);
   }
@@ -64,6 +68,9 @@ public class TypeParameterResolver {
     return result;
   }
 
+  // eg1: type = class vo.User
+  //      scrType = interface mapper.UserMapper
+  //      declaringClass = interface mapper.UserMapper
   private static Type resolveType(Type type, Type srcType, Class<?> declaringClass) {
     if (type instanceof TypeVariable) {
       return resolveTypeVar((TypeVariable<?>) type, srcType, declaringClass);
@@ -72,6 +79,7 @@ public class TypeParameterResolver {
     } else if (type instanceof GenericArrayType) {
       return resolveGenericArrayType((GenericArrayType) type, srcType, declaringClass);
     } else {
+      // eg1: 返回class vo.User
       return type;
     }
   }

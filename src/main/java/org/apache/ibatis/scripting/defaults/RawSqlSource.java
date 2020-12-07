@@ -52,8 +52,10 @@ public class RawSqlSource implements SqlSource {
     return context.getSql();
   }
 
+  // eg1: parameterObject={"id":2L, "param1":2L}
   @Override
   public BoundSql getBoundSql(Object parameterObject) {
+    // eg1: sqlSource = StaticSqlSource  parameterObject = {"id": 2L, "param1", 2L}
     return sqlSource.getBoundSql(parameterObject);
   }
 

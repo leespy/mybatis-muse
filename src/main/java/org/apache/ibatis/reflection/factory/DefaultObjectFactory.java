@@ -41,18 +41,29 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
 
     private static final long serialVersionUID = -8855120656740914948L;
 
+    // eg1: type = List.class
     @Override
     public <T> T create(Class<T> type) {
-        return create(type, null, null);
+        return create(type, null, null); // eg1: 生成空集合的ArrayList对象返回
     }
 
+    // eg1: type=List.class     constructorArgTypes=null constructorArgs=null
+    // eg1: type=User.class  constructorArgTypes=null constructorArgs=null
     @SuppressWarnings("unchecked")
     @Override
     public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
-        // 映射对象类型
+        /**
+         * 映射对象类型
+         */
+        // eg1: classToCreate=ArrayList.class  type=List.class
+        // eg1: classToCreate=User.class       type=User.class
         Class<?> classToCreate = resolveInterface(type);
 
-        // 利用反射，生成对象
+        /**
+         * 利用反射，生成对象
+         */
+        // eg1: 返回空集合的ArrayList对象  classToCreate=ArrayList.class
+        // eg1: 返回User{id=null, name='null', age=null, userContacts=null}  classToCreate=User.class
         return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
     }
 
@@ -122,9 +133,12 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
      *
      * @return 映射后的类型
      */
+    // eg1: type=List.class
+    // eg1: type=User.class
     protected Class<?> resolveInterface(Class<?> type) {
         Class<?> classToCreate;
         if (type == List.class || type == Collection.class || type == Iterable.class) {
+            // eg1: type = List.class
             classToCreate = ArrayList.class;
         } else if (type == Map.class) {
             classToCreate = HashMap.class;
@@ -133,8 +147,11 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
         } else if (type == Set.class) {
             classToCreate = HashSet.class;
         } else {
+            // eg1: type=User.class
             classToCreate = type;
         }
+        // eg1: 返回ArrayList.class
+        // eg1: 返回User.class
         return classToCreate;
     }
 
