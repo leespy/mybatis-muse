@@ -160,7 +160,9 @@ public final class TypeHandlerRegistry {
         register(char.class, new CharacterTypeHandler());
     }
 
+    // eg1: javaType = java.lang.Long.class
     public boolean hasTypeHandler(Class<?> javaType) {
+        // eg1: 返回true
         return hasTypeHandler(javaType, null);
     }
 
@@ -168,9 +170,11 @@ public final class TypeHandlerRegistry {
         return hasTypeHandler(javaTypeReference, null);
     }
 
-    // eg1: javaType=vo.User.class jdbcType=null
+    // eg1: javaType=vo.User.class          jdbcType=null
+    // eg1: javaType=java.lang.Long.class   jdbcType=null
     public boolean hasTypeHandler(Class<?> javaType, JdbcType jdbcType) {
         // eg1: getTypeHandler((Type) javaType, jdbcType)=null
+        // eg1: getTypeHandler((Type) javaType, jdbcType)={null: "class java.lang.Long"}  返回true
         return javaType != null && getTypeHandler((Type) javaType, jdbcType) != null;
     }
 
@@ -202,13 +206,16 @@ public final class TypeHandlerRegistry {
         return getTypeHandler(javaTypeReference.getRawType(), jdbcType);
     }
 
-    // eg1: javaType=vo.User.class jdbcType=null
+    // eg1: javaType=vo.User.class          jdbcType=null
+    // eg1: javaType=java.lang.Long.class   jdbcType=null
     @SuppressWarnings("unchecked")
     private <T> TypeHandler<T> getTypeHandler(Type type, JdbcType jdbcType) {
         Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = getJdbcHandlerMap(type);
         TypeHandler<?> handler = null;
         // eg1: jdbcHandlerMap=null
+        // eg1: jdbcHandlerMap={null: "class java.lang.Long"}
         if (jdbcHandlerMap != null) {
+            // eg1: jdbcType=null  handler=class java.lang.Long
             handler = jdbcHandlerMap.get(jdbcType);
             if (handler == null) {
                 handler = jdbcHandlerMap.get(null);
@@ -218,19 +225,24 @@ public final class TypeHandlerRegistry {
                 handler = pickSoleHandler(jdbcHandlerMap);
             }
         }
-        // type drives generics here
-        return (TypeHandler<T>) handler; // eg1: handler=null
+        // eg1: handler=null
+        // eg1: handler=class java.lang.Long
+        return (TypeHandler<T>) handler;
     }
 
-    // eg1: javaType=vo.User.class
+    // eg1: type=vo.User.class
+    // eg1: type=java.lang.Long.class
     @SuppressWarnings({"rawtypes", "unchecked"})
     private Map<JdbcType, TypeHandler<?>> getJdbcHandlerMap(Type type) {
         // eg1: jdbcHandlerMap={}
+        // eg1: jdbcHandlerMap={null: "class java.lang.Long"}
         Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = TYPE_HANDLER_MAP.get(type);
         // eg1: true
+        // eg1: false
         if (NULL_TYPE_HANDLER_MAP.equals(jdbcHandlerMap)) {
             return null;
         }
+        // eg1: jdbcHandlerMap={null: "class java.lang.Long"}
         if (jdbcHandlerMap == null && type instanceof Class) {
             Class<?> clazz = (Class<?>) type;
             if (clazz.isEnum()) {
@@ -243,7 +255,9 @@ public final class TypeHandlerRegistry {
                 jdbcHandlerMap = getJdbcHandlerMapForSuperclass(clazz);
             }
         }
+        // eg1: type=java.lang.Long.class  jdbcHandlerMap={null: "class java.lang.Long"}
         TYPE_HANDLER_MAP.put(type, jdbcHandlerMap == null ? NULL_TYPE_HANDLER_MAP : jdbcHandlerMap);
+        // eg1: jdbcHandlerMap={null: "class java.lang.Long"}
         return jdbcHandlerMap;
     }
 

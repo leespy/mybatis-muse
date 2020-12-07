@@ -91,7 +91,7 @@ public class MapperMethod {
                 } else {
                     // eg1:  args = {2L}
                     Object param = method.convertArgsToSqlCommandParam(args);
-                    // eg1: command.getName()="mapper.UserMapper.getUserById" param={"id":2L, "param1":2L}   sqlSession=DefaultSqlSession
+                    // eg1: command.getName()="mapper.UserMapper.getUserById" param={"id":2L, "param1":2L} sqlSession=DefaultSqlSession
                     result = sqlSession.selectOne(command.getName(), param);
                 }
                 break;

@@ -47,8 +47,8 @@ public class SimpleExecutor extends BaseExecutor {
         Statement stmt = null;
         try {
             Configuration configuration = ms.getConfiguration();
-            StatementHandler handler =
-                    configuration.newStatementHandler(this, ms, parameter, RowBounds.DEFAULT, null, null);
+            StatementHandler handler = configuration.newStatementHandler(this, ms, parameter, RowBounds.DEFAULT, null
+                    , null);
             stmt = prepareStatement(handler, ms.getStatementLog());
             return handler.update(stmt);
         } finally {
@@ -64,14 +64,15 @@ public class SimpleExecutor extends BaseExecutor {
         try {
             Configuration configuration = ms.getConfiguration();
             /** 根据Configuration来构建StatementHandler */
-            StatementHandler handler =
-                    configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+            StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds,
+                    resultHandler, boundSql);
 
-            /** 然后使用prepareStatement方法，对SQL编译并对参数进行初始化 */
+            // eg1: handler=RoutingStatementHandler
+            /** 然后使用prepareStatement方法，对SQL进行预编译并设置入参 */
             stmt = prepareStatement(handler, ms.getStatementLog());
 
-            /** 包装好的Statement通过StatementHandler来执行，并把结果传递给resultHandler */
             // eg1: handler=RoutingStatementHandler parameter = {"id": 2L, "param1", 2L}  rowBounds = new RowBounds() resultHandler = null
+            /** 开始执行真正的查询操作。将包装好的Statement通过StatementHandler来执行，并把结果传递给resultHandler */
             return handler.<E>query(stmt, resultHandler);
         } finally {
             closeStatement(stmt);
@@ -93,20 +94,26 @@ public class SimpleExecutor extends BaseExecutor {
     }
 
     /**
-     * 使用prepareStatement方法，对SQL编译并对参数进行初始化
+     * 使用prepareStatement方法，对SQL编译并设置入参
      *
      * @param handler
      * @param statementLog
      * @return
      * @throws SQLException
      */
+    // eg1: handler=RoutingStatementHandler
     private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
         Statement stmt;
         Connection connection = getConnection(statementLog);
-        /** 调用了StatementHandler的prepared进行了预编译和基础设置 */
+
+        // eg1: handler=RoutingStatementHandler
+        /** 调用了StatementHandler的prepared进行了sql的预编译 */
         stmt = handler.prepare(connection, transaction.getTimeout());
-        /** 通过StatementHandler的parameterize来设置参数并执行 */
+
+        /** 通过StatementHandler的parameterize来给sql设置入参 */
         handler.parameterize(stmt);
+
+        // eg1: 返回org.apache.ibatis.logging.jdbc.PreparedStatementLogger@2e570ded
         return stmt;
     }
 

@@ -39,12 +39,14 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
     private String children;
 
     /**
-     * 例1: 参数: user[1].linkman.name
+     * 属性标记器
+     *
+     * 例1: 参数: fullname=user[1].linkman.name
      *     children=linkman.name
      *     indexedName=user[1]
      *     name=user
      *     index=1
-     * 例2: 参数: user
+     * 例2: 参数: fullname=user
      *     children=null
      *     indexedName=user
      *     name=user
@@ -52,26 +54,19 @@ public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
      */
     // eg: fullname="user[1].linkman.name"
     public PropertyTokenizer(String fullname) {
-        // eg: delim=7
-        int delim = fullname.indexOf('.');
+        int delim = fullname.indexOf('.'); // eg: delim=7
         if (delim > -1) {
-            // name="user[1]"
-            name = fullname.substring(0, delim);
-            // children="linkman.name"
-            children = fullname.substring(delim + 1);
+            name = fullname.substring(0, delim); // name="user[1]"
+            children = fullname.substring(delim + 1); // children="linkman.name"
         } else {
             name = fullname;
             children = null;
         }
-        // eg: indexedName="user[1]"
-        indexedName = name;
-        // delim=4
-        delim = name.indexOf('[');
+        indexedName = name; // eg: indexedName="user[1]"
+        delim = name.indexOf('['); // delim=4
         if (delim > -1) {
-            // index="1"
-            index = name.substring(delim + 1, name.length() - 1);
-            // name="user"
-            name = name.substring(0, delim);
+            index = name.substring(delim + 1, name.length() - 1); // index="1"
+            name = name.substring(0, delim); // name="user"
         }
     }
 

@@ -45,18 +45,20 @@ public class ParamNameResolver {
      * <li>aMethod(int a, RowBounds rb, int b) -&gt; {{0, "0"}, {2, "1"}}</li>
      * </ul>
      */
+    /** key:下标  value:对应参数名称*/
     private final SortedMap<Integer, String> names;
 
+    /** 参数是否用@Param注解修饰*/
     private boolean hasParamAnnotation;
 
     // eg1: method = public abstract vo.User mapper.UserMapper.getUserById(java.lang.Long)
     /**
-     * 方法入参解析器的构造方法。
-     * 解析方法入参，将paramIndex和name维护到SortedMap<Integer, String> names中。
+     * 解析方法入参，维护到names中。
      */
     public ParamNameResolver(Configuration config, Method method) {
         // eg1: paramTypes[0] = Long.class
         final Class<?>[] paramTypes = method.getParameterTypes();
+
         // eg1: paramAnnotations[0][0] = @org.apache.ibatis.annotations.Param(value=id)
         /**
          * 首先举个例子:

@@ -63,6 +63,7 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
         /** 最终还是使用JDBC去进行数据操作 */
         PreparedStatement ps = (PreparedStatement) statement;
+        /** 执行查询操作 */
         ps.execute();
         // eg1: 封装结果集 resultSetHandler=DefaultResultSetHandler
         return resultSetHandler.<E>handleResultSets(ps);
@@ -75,9 +76,15 @@ public class PreparedStatementHandler extends BaseStatementHandler {
         return resultSetHandler.<E>handleCursorResultSets(ps);
     }
 
+    // eg1: connection
+    /**
+     * 准备预编译语句
+     */
     @Override
     protected Statement instantiateStatement(Connection connection) throws SQLException {
+        // eg1: sql="select id, name, age from tb_user where id = ?"
         String sql = boundSql.getSql();
+        // eg1: mappedStatement.getKeyGenerator=NoKeyGenerator
         if (mappedStatement.getKeyGenerator() instanceof Jdbc3KeyGenerator) {
             String[] keyColumnNames = mappedStatement.getKeyColumns();
             if (keyColumnNames == null) {
@@ -85,14 +92,19 @@ public class PreparedStatementHandler extends BaseStatementHandler {
             } else {
                 return connection.prepareStatement(sql, keyColumnNames);
             }
-        } else if (mappedStatement.getResultSetType() != null) {
-            return connection
-                    .prepareStatement(sql, mappedStatement.getResultSetType().getValue(), ResultSet.CONCUR_READ_ONLY);
+        }
+        // eg1: mappedStatement.getResultSetType() = null
+        else if (mappedStatement.getResultSetType() != null) {
+            return connection.prepareStatement(sql, mappedStatement.getResultSetType().getValue(),
+                    ResultSet.CONCUR_READ_ONLY);
         } else {
+            // eg1: sql="select id, name, age from tb_user where id = ?"
+            /** 准备预编译语句 */
             return connection.prepareStatement(sql);
         }
     }
 
+    // eg1: org.apache.ibatis.logging.jdbc.PreparedStatementLogger@2e570ded
     @Override
     public void parameterize(Statement statement) throws SQLException {
         parameterHandler.setParameters((PreparedStatement) statement);

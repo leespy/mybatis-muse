@@ -591,6 +591,7 @@ public class Configuration {
                 rowBounds, resultHandler, boundSql);
         // eg1: interceptorChain中是空Chain，由于interceptorChain中没有执行addInterceptor()来添加Interceptor，所以执行pluginAll这个也是徒劳的。
         statementHandler = (StatementHandler) interceptorChain.pluginAll(statementHandler);
+        // eg1: statementHandler=PreparedStatementHandler
         return statementHandler;
     }
 

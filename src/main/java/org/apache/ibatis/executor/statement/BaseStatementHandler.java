@@ -86,11 +86,17 @@ public abstract class BaseStatementHandler implements StatementHandler {
         return parameterHandler;
     }
 
+    // eg1: delegate=PreparedStatementHandler
+
+    /**
+     * 执行预编译语句
+     */
     @Override
     public Statement prepare(Connection connection, Integer transactionTimeout) throws SQLException {
         ErrorContext.instance().sql(boundSql.getSql());
         Statement statement = null;
         try {
+            // eg1: 调用PreparedStatementHandler的instantiateStatement
             statement = instantiateStatement(connection);
             setStatementTimeout(statement, transactionTimeout);
             setFetchSize(statement);

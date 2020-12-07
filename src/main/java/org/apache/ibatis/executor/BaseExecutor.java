@@ -153,8 +153,8 @@ public abstract class BaseExecutor implements Executor {
         }
         List<E> list;
         try {
-            queryStack++; // eg1: queryStack = 1
-            // eg1: resultHandler = null localCache.getObject(key) = null
+            queryStack++; // eg1: queryStack=1
+            // eg1: resultHandler=null localCache.getObject(key)=null
             list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
             // eg1: list = null
             if (list != null) {
@@ -202,6 +202,9 @@ public abstract class BaseExecutor implements Executor {
     }
 
     // eg1: delegate=SimpleExecutor(BaseExecutor) parameterObject={"id":2L, "param1":2L} rowBounds=new RowBounds()
+    /**
+     * 创建缓存的key
+     */
     @Override
     public CacheKey createCacheKey(MappedStatement ms, Object parameterObject, RowBounds rowBounds, BoundSql boundSql) {
         if (closed) {
@@ -340,8 +343,7 @@ public abstract class BaseExecutor implements Executor {
 
     // eg1: parameter = {"id": 2L, "param1", 2L}  rowBounds = new RowBounds() resultHandler = null
     private <E> List<E> queryFromDatabase(MappedStatement ms, Object parameter, RowBounds rowBounds,
-                                          ResultHandler resultHandler, CacheKey key, BoundSql boundSql)
-            throws SQLException {
+                                          ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
         List<E> list;
         // eg1: key = -445449180:-48278933:mapper.UserMapper.getUserById:0:2147483647:select id, name, age from tb_user where id = ?:2:dev
         localCache.putObject(key, EXECUTION_PLACEHOLDER);

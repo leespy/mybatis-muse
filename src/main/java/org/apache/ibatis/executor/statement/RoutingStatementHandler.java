@@ -30,6 +30,8 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
+ * StatementHandler的路由类，确定流转到哪个实现类
+ *
  * @author Clinton Begin
  */
 public class RoutingStatementHandler implements StatementHandler {
@@ -60,6 +62,8 @@ public class RoutingStatementHandler implements StatementHandler {
 
     }
 
+
+    // eg1: delegate=PreparedStatementHandler
     @Override
     public Statement prepare(Connection connection, Integer transactionTimeout) throws SQLException {
         return delegate.prepare(connection, transactionTimeout);
