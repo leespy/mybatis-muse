@@ -116,6 +116,7 @@ public class Configuration {
     protected boolean multipleResultSetsEnabled = true;
     // 使用DB的自增序列
     protected boolean useGeneratedKeys;
+    // 使用列标签代替列名。不同的驱动在这方面会有不同的表现， 具体可参考相关驱动文档或通过测试这两种不同的模式来观察所用驱动的结果。
     protected boolean useColumnLabel = true;
     protected boolean cacheEnabled = true;
     protected boolean callSettersOnNulls;
@@ -133,7 +134,7 @@ public class Configuration {
     protected Integer defaultFetchSize;
     protected ExecutorType defaultExecutorType = ExecutorType.SIMPLE;
 
-    // 自动映射配置
+    // 自动映射配置f
     protected AutoMappingBehavior autoMappingBehavior = AutoMappingBehavior.PARTIAL;
     protected AutoMappingUnknownColumnBehavior autoMappingUnknownColumnBehavior = AutoMappingUnknownColumnBehavior.NONE;
 

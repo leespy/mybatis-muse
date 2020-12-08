@@ -41,22 +41,28 @@ import org.apache.ibatis.type.UnknownTypeHandler;
  */
 public class ResultSetWrapper {
 
+    // 结果集
     private final ResultSet resultSet;
+    // TypeHandler注册器
     private final TypeHandlerRegistry typeHandlerRegistry;
+    // 结果的列名集合
     private final List<String> columnNames = new ArrayList<String>();
+    // 对应的实体属性类型集合
     private final List<String> classNames = new ArrayList<String>();
+    // 对应的JDBC类型集合
     private final List<JdbcType> jdbcTypes = new ArrayList<JdbcType>();
-    private final Map<String, Map<Class<?>, TypeHandler<?>>> typeHandlerMap =
-            new HashMap<String, Map<Class<?>, TypeHandler<?>>>();
+    private final Map<String, Map<Class<?>, TypeHandler<?>>> typeHandlerMap = new HashMap<>();
     private Map<String, List<String>> mappedColumnNamesMap = new HashMap<String, List<String>>();
     private Map<String, List<String>> unMappedColumnNamesMap = new HashMap<String, List<String>>();
 
+    // eg1:
     public ResultSetWrapper(ResultSet rs, Configuration configuration) throws SQLException {
         super();
         this.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
         this.resultSet = rs;
         final ResultSetMetaData metaData = rs.getMetaData();
         // eg1: columnCount = 3
+        /** 获得查询结果列的数量 */
         final int columnCount = metaData.getColumnCount();
         for (int i = 1; i <= columnCount; i++) {
             // eg1: configuration.isUseColumnLabel() = true

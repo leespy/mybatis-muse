@@ -66,7 +66,7 @@ public class PreparedStatementHandler extends BaseStatementHandler {
         /** 执行查询操作 */
         ps.execute();
         // eg1: 封装结果集 resultSetHandler=DefaultResultSetHandler
-        return resultSetHandler.<E>handleResultSets(ps);
+        return resultSetHandler.handleResultSets(ps);
     }
 
     @Override

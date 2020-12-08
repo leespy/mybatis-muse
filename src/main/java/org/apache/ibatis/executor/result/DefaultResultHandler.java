@@ -23,6 +23,8 @@ import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 
 /**
+ * 存储查询结果
+ *
  * @author Clinton Begin
  */
 public class DefaultResultHandler implements ResultHandler<Object> {
@@ -30,7 +32,7 @@ public class DefaultResultHandler implements ResultHandler<Object> {
     private final List<Object> list;
 
     public DefaultResultHandler() {
-        list = new ArrayList<Object>();
+        list = new ArrayList<>();
     }
 
     // eg1: objectFactory = DefaultObjectFactory
@@ -39,7 +41,10 @@ public class DefaultResultHandler implements ResultHandler<Object> {
         list = objectFactory.create(List.class); // eg1: 生成空集合的ArrayList对象返回
     }
 
-
+    // eg1:
+    /**
+     * 解析结果，并存放到list中
+     */
     @Override
     public void handleResult(ResultContext<? extends Object> context) {
         // eg1: context.getResultObject()=User{id=2, name='muse2', age=24, userContacts=null}

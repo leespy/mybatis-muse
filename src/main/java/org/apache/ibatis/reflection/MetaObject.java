@@ -139,9 +139,9 @@ public class MetaObject {
         }
     }
 
-    // eg1: name="id"  value=2L
-    // eg1: name="name"  value="muse2"
-    // eg1: name="age"  value=24
+    // eg1: name="id"       value=2L
+    // eg1: name="name"     value="muse2"
+    // eg1: name="age"      value=24
     public void setValue(String name, Object value) {
         // eg1: name="id"
         // eg1: name="name"

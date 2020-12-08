@@ -42,12 +42,13 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     private static final long serialVersionUID = -8855120656740914948L;
 
     // eg1: type = List.class
+    // eg1: type=User.class
     @Override
     public <T> T create(Class<T> type) {
         return create(type, null, null); // eg1: 生成空集合的ArrayList对象返回
     }
 
-    // eg1: type=List.class     constructorArgTypes=null constructorArgs=null
+    // eg1: type=List.class  constructorArgTypes=null constructorArgs=null
     // eg1: type=User.class  constructorArgTypes=null constructorArgs=null
     @SuppressWarnings("unchecked")
     @Override
@@ -62,8 +63,8 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
         /**
          * 利用反射，生成对象
          */
-        // eg1: 返回空集合的ArrayList对象  classToCreate=ArrayList.class
-        // eg1: 返回User{id=null, name='null', age=null, userContacts=null}  classToCreate=User.class
+        // eg1: 返回空集合的ArrayList对象  classToCreate=ArrayList.class constructorArgTypes=null constructorArgs=null
+        // eg1: 返回User{id=null, name='null', age=null, userContacts=null}  classToCreate=User.class constructorArgTypes=null constructorArgs=null
         return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
     }
 
@@ -82,23 +83,25 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
      *
      * @return
      */
+    // eg1: type=ArrayList.class constructorArgTypes=null constructorArgs=null
     <T> T instantiateClass(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
         try {
             Constructor<T> constructor;
 
-            // 如果是调用默认构造方法
+            // eg1: constructorArgTypes=null constructorArgs=null
+            /** 如果是调用无参数的默认构造方法 */
             if (constructorArgTypes == null || constructorArgs == null) {
-                constructor = type.getDeclaredConstructor(); // 取得默认构造方法对象
+                // eg1: type=ArrayList.class
+                constructor = type.getDeclaredConstructor(); /** 取得默认构造方法对象 */
                 if (!constructor.isAccessible()) {
-                    // 为反射对象设置可访问标志，flag为true表明屏蔽Java语言的访问检查，使得对象的私有属性也可以被查询和设置
+                    /** 为反射对象设置可访问标志，flag为true表明屏蔽Java语言的访问检查，使得对象的私有属性也可以被查询和设置 */
                     constructor.setAccessible(true);
                 }
-                return constructor.newInstance(); // 生成实例
+                return constructor.newInstance(); /** 生成实例 */
             }
 
-            // 取得有参数的构造方法对象
-            constructor =
-                    type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[constructorArgTypes.size()]));
+            /** 调用有参数的构造方法 */
+            constructor = type.getDeclaredConstructor(constructorArgTypes.toArray(new Class[constructorArgTypes.size()]));
             if (!constructor.isAccessible()) {
                 constructor.setAccessible(true);
             }

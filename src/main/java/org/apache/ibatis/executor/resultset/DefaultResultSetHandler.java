@@ -185,23 +185,27 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     public List<Object> handleResultSets(Statement stmt) throws SQLException {
         ErrorContext.instance().activity("handling results").object(mappedStatement.getId());
 
-        final List<Object> multipleResults = new ArrayList<Object>();
-
+        final List<Object> multipleResults = new ArrayList<>();
         int resultSetCount = 0;
-        // eg1: 执行到这里
-        ResultSetWrapper rsw = getFirstResultSet(stmt);
 
+        /** 获得执行后的结果集，并封装到ResultSetWrapper */
+        ResultSetWrapper rsw = getFirstResultSet(stmt);
         List<ResultMap> resultMaps = mappedStatement.getResultMaps();
         // eg1: resultMapCount = 1
         int resultMapCount = resultMaps.size();
+
+        /** 验证rsw和resultMaps是否为空 */
         validateResultMapsCount(rsw, resultMapCount);
+
         // eg1: rsw不为空 resultMapCount=1 resultSetCount=0
         while (rsw != null && resultMapCount > resultSetCount) {
             ResultMap resultMap = resultMaps.get(resultSetCount);
-            /** 处理结果集*/
+            /** 处理结果集 */
             handleResultSet(rsw, resultMap, multipleResults, null);
+
             // eg1: rsw=null
             rsw = getNextResultSet(stmt);
+
             cleanUpAfterHandlingResultSet();
             resultSetCount++; // eg1: 自增后resultSetCount=1
         }
@@ -222,7 +226,8 @@ public class DefaultResultSetHandler implements ResultSetHandler {
             }
         }
 
-        // eg1: multipleResults[0]=User{id=2, name='muse2', age=24, userContacts=null}
+        // eg1: multipleResults.get(0).get(0) = User{id=2, name='muse2', age=24, userContacts=null}
+        /** 返回结果 */
         return collapseSingleResultList(multipleResults);
     }
 
@@ -246,7 +251,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 
     // eg1: 执行到这里
     private ResultSetWrapper getFirstResultSet(Statement stmt) throws SQLException {
-        // eg1: 获得ResultSet，且不为空
+        // eg1: 通过JDBC，获得ResultSet，且不为空
         ResultSet rs = stmt.getResultSet();
         while (rs == null) {
             if (stmt.getMoreResults()) {
@@ -304,6 +309,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     }
 
     // eg1: parentMapping = null
+    /**
+     * 处理结果集
+     */
     private void handleResultSet(ResultSetWrapper rsw, ResultMap resultMap, List<Object> multipleResults,
                                  ResultMapping parentMapping) throws SQLException {
         try {
@@ -314,7 +322,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
                 // eg1: resultHandler = null
                 if (resultHandler == null) {
                     // eg1: objectFactory = DefaultObjectFactory defaultResultHandler里面包含了一个空集合的ArrayList实例
+                    /** 初始化ResultHandler实例，用于解析查询结果并存储于该实例对象中 */
                     DefaultResultHandler defaultResultHandler = new DefaultResultHandler(objectFactory);
+                    /** 解析行数据 */
                     handleRowValues(rsw, resultMap, defaultResultHandler, rowBounds, null);
                     multipleResults.add(defaultResultHandler.getResultList());
                 } else {
@@ -328,21 +338,18 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         }
     }
 
-    // eg1: multipleResults[0]=User{id=2, name='muse2', age=24, userContacts=null}
+    // eg1: multipleResults.get(0).get(0) = User{id=2, name='muse2', age=24, userContacts=null}
     @SuppressWarnings("unchecked")
     private List<Object> collapseSingleResultList(List<Object> multipleResults) {
-        // eg1: multipleResults.size()=1 multipleResults.get(0)=User{id=2, name='muse2', age=24, userContacts=null}
+        // eg1: multipleResults.size()=1 multipleResults.get(0).get(0) = User{id=2, name='muse2', age=24, userContacts=null}
         return multipleResults.size() == 1 ? (List<Object>) multipleResults.get(0) : multipleResults; // eg1: 返回 User{id=2, name='muse2', age=24, userContacts=null}
     }
-
-    //
-    // HANDLE ROWS FOR SIMPLE RESULTMAP
-    //
 
     // eg1: parentMapping = null
     public void handleRowValues(ResultSetWrapper rsw, ResultMap resultMap, ResultHandler<?> resultHandler,
                                 RowBounds rowBounds, ResultMapping parentMapping) throws SQLException {
         // eg1: resultMap.hasNestedResultMaps()=false
+        /** 是否是聚合Nested类型的结果集 */
         if (resultMap.hasNestedResultMaps()) {
             ensureNoRowBounds();
             checkResultHandler();
@@ -375,21 +382,28 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     private void handleRowValuesForSimpleResultMap(ResultSetWrapper rsw, ResultMap resultMap,
                                                    ResultHandler<?> resultHandler, RowBounds rowBounds,
                                                    ResultMapping parentMapping) throws SQLException {
-        DefaultResultContext<Object> resultContext = new DefaultResultContext<Object>();
+        DefaultResultContext<Object> resultContext = new DefaultResultContext<>();
         // eg1: skipRows里面没做什么事情
         skipRows(rsw.getResultSet(), rowBounds);
-        // eg1: shouldProcessMoreRows = true    rsw.getResultSet().next() = true
-        while (shouldProcessMoreRows(resultContext, rowBounds) && rsw.getResultSet().next()) {
 
+        // eg1: shouldProcessMoreRows(resultContext, rowBounds) = true    rsw.getResultSet().next() = true
+        while (shouldProcessMoreRows(resultContext, rowBounds) && rsw.getResultSet().next()) {
+            /** 解析结果集中的鉴别器<discriminate/> */
             ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(rsw.getResultSet(), resultMap, null);
+
             /** 将数据库操作结果保存到POJO并返回*/
             Object rowValue = getRowValue(rsw, discriminatedResultMap);
-            // eg1: parentMapping = null
+
+            // eg1: rowValue=User{id=2, name='muse2', age=24, userContacts=null}  parentMapping = null
+            /** 存储POJO对象到DefaultResultHandler中 */
             storeObject(resultHandler, resultContext, rowValue, parentMapping, rsw.getResultSet());
         }
     }
 
-    // eg1: parentMapping = null
+    // eg1: rowValue=User{id=2, name='muse2', age=24, userContacts=null}  parentMapping = null
+    /**
+     * 存储POJO对象到DefaultResultHandler中
+     */
     private void storeObject(ResultHandler<?> resultHandler, DefaultResultContext<Object> resultContext,
                              Object rowValue, ResultMapping parentMapping, ResultSet rs) throws SQLException {
         // eg1: parentMapping = null
@@ -397,11 +411,15 @@ public class DefaultResultSetHandler implements ResultSetHandler {
             linkToParents(rs, parentMapping, rowValue);
         } else {
             // eg1: resultHandler里保存空size的ArrayList rowValue=User{id=2, name='muse2', age=24, userContacts=null}
+            /** 将结果存储到DefaultResultHandler中 */
             callResultHandler(resultHandler, resultContext, rowValue);
         }
     }
 
     // eg1: resultHandler里保存空size的ArrayList rowValue=User{id=2, name='muse2', age=24, userContacts=null}
+    /**
+     *
+     */
     @SuppressWarnings("unchecked" /* because ResultHandler<?> is always ResultHandler<Object>*/)
     private void callResultHandler(ResultHandler<?> resultHandler, DefaultResultContext<Object> resultContext,
                                    Object rowValue) {
@@ -433,25 +451,27 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         }
     }
 
-    //
-    // GET VALUE FROM ROW FOR SIMPLE RESULT MAP
-    //
-
+    /**
+     * 将数据库操作结果保存到POJO并返回
+     */
     private Object getRowValue(ResultSetWrapper rsw, ResultMap resultMap) throws SQLException {
         final ResultLoaderMap lazyLoader = new ResultLoaderMap();
+        /** 创建空的结果对象 */
         Object rowValue = createResultObject(rsw, resultMap, lazyLoader, null);
-        // eg1: rowValue=User{id=null, name='null', age=null, userContacts=null}
-        //      hasTypeHandlerForResultObject(rsw, resultMap.getType())=false
+
+        // eg1: rowValue=User{id=null, name='null', age=null, userContacts=null}   hasTypeHandlerForResultObject(rsw, resultMap.getType())=false
         if (rowValue != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) {
+            /** 将rowValue赋值给metaObject */
             final MetaObject metaObject = configuration.newMetaObject(rowValue);
             // eg1: foundValues = useConstructorMappings = false
             boolean foundValues = this.useConstructorMappings;
             // eg1: shouldApplyAutomaticMappings(resultMap, false) = true
+            /** 是否应用自动映射 */
             if (shouldApplyAutomaticMappings(resultMap, false)) {
-                /**
-                 * 将查询出来的值赋值给POJO对象
-                 */
                 // eg1: applyAutomaticMappings(rsw, resultMap, metaObject, null)=true
+                /**
+                 * 将查询出来的值赋值给metaObject中的POJO对象
+                 */
                 foundValues = applyAutomaticMappings(rsw, resultMap, metaObject, null) || foundValues; // eg1: foundValues=true
             }
 
@@ -466,6 +486,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     }
 
     // eg1: isNested=false
+    /**
+     * 是否应用自动映射
+     */
     private boolean shouldApplyAutomaticMappings(ResultMap resultMap, boolean isNested) {
         // eg1: resultMap.getAutoMapping()=null
         if (resultMap.getAutoMapping() != null) {
@@ -481,13 +504,11 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         }
     }
 
-    //
-    // PROPERTY MAPPINGS
-    //
+
     // eg1: columnPrefix=null
     private boolean applyPropertyMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject,
                                           ResultLoaderMap lazyLoader, String columnPrefix) throws SQLException {
-        // eg1: mappedColumnNames={}
+        // eg1: mappedColumnNames={} columnPrefix=null
         final List<String> mappedColumnNames = rsw.getMappedColumnNames(resultMap, columnPrefix);
         boolean foundValues = false;
         final List<ResultMapping> propertyMappings = resultMap.getPropertyResultMappings();
@@ -539,6 +560,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     }
 
     // eg1: columnPrefix=null
+    /**
+     * 创建自动映射
+     */
     private List<UnMappedColumnAutoMapping> createAutomaticMappings(ResultSetWrapper rsw, ResultMap resultMap,
                                                                     MetaObject metaObject, String columnPrefix)
             throws SQLException {
@@ -588,14 +612,37 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     // eg1: columnPrefix=null
     private boolean applyAutomaticMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject,
                                            String columnPrefix) throws SQLException {
+        /** 创建自动映射 */
         List<UnMappedColumnAutoMapping> autoMapping = createAutomaticMappings(rsw, resultMap, metaObject, columnPrefix);
         boolean foundValues = false;
         // eg1: autoMapping.size=3
+        //
+        // autoMapping：
+        // [
+        //  {
+        //    "column": "id",
+        //    "property": "id",
+        //    "typeHandler": LongTypeHandler,
+        //    "primitive": false
+        //  },
+        //  {
+        //    "column": "name",
+        //    "property": "name",
+        //    "typeHandler": StringTypeHandler,
+        //    "primitive": false
+        //  },
+        //  {
+        //    "column": "age",
+        //    "property": "age",
+        //    "typeHandler": IntegerTypeHandler,
+        //    "primitive": false
+        //  }
+        //]
         if (autoMapping.size() > 0) {
             for (UnMappedColumnAutoMapping mapping : autoMapping) {
-                // eg1: mapping.column="id" value=2L
-                // eg1: mapping.column="name" value="muse2"
-                // eg1: mapping.column="age" value=24
+                // eg1: mapping.column="id"      mapping.typeHandler=LongTypeHandler       value=2L
+                // eg1: mapping.column="name"    mapping.typeHandler=StringTypeHandler     value="muse2"
+                // eg1: mapping.column="age"     mapping.typeHandler=IntegerTypeHandler    value=24
                 final Object value = mapping.typeHandler.getResult(rsw.getResultSet(), mapping.column);
                 if (value != null) {
                     // eg1: foundValues = true
@@ -675,19 +722,19 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         return cacheKey;
     }
 
-    //
-    // INSTANTIATION & CONSTRUCTOR MAPPING
-    //
 
     // eg1: columnPrefix = null
     private Object createResultObject(ResultSetWrapper rsw, ResultMap resultMap, ResultLoaderMap lazyLoader,
                                       String columnPrefix) throws SQLException {
         this.useConstructorMappings = false; // reset previous mapping result
-        final List<Class<?>> constructorArgTypes = new ArrayList<Class<?>>();
-        final List<Object> constructorArgs = new ArrayList<Object>();
+        final List<Class<?>> constructorArgTypes = new ArrayList<>();
+        final List<Object> constructorArgs = new ArrayList<>();
+
+        /** 创建一个resultMap.getType()类型的实例对象 */
         Object resultObject = createResultObject(rsw, resultMap, constructorArgTypes, constructorArgs, columnPrefix);
         // eg1: resultObject=User{id=null, name='null', age=null, userContacts=null}
         //      hasTypeHandlerForResultObject(rsw, resultMap.getType()) = false
+        /** 判断resultMap.getType()是否存在TypeHandler */
         if (resultObject != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) {
             final List<ResultMapping> propertyMappings = resultMap.getPropertyResultMappings();
             // eg1: propertyMappings={}
@@ -702,7 +749,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
             }
         }
         // eg1: resultObject=User{id=null, name='null', age=null, userContacts=null} constructorArgTypes.isEmpty()=true
-        this.useConstructorMappings = (resultObject != null && !constructorArgTypes.isEmpty());
+        this.useConstructorMappings = (resultObject != null && !constructorArgTypes.isEmpty()); // eg1: useConstructorMappings = false
 
         return resultObject; // eg1: resultObject=User{id=null, name='null', age=null, userContacts=null}
     }
@@ -713,9 +760,12 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         // eg1: resultType = vo.User.class
         final Class<?> resultType = resultMap.getType();
         final MetaClass metaType = MetaClass.forClass(resultType, reflectorFactory);
+
         // eg1: constructorMappings = {}
         final List<ResultMapping> constructorMappings = resultMap.getConstructorResultMappings();
+
         // eg1: hasTypeHandlerForResultObject(rsw, resultType) = false
+        /** 判断resultType是否存在TypeHandler */
         if (hasTypeHandlerForResultObject(rsw, resultType)) {
             return createPrimitiveResultObject(rsw, resultMap, columnPrefix);
         }
@@ -726,6 +776,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         // eg1: resultType.isInterface()=false  metaType.hasDefaultConstructor()=true
         else if (resultType.isInterface() || metaType.hasDefaultConstructor()) {
             // eg1: objectFactory=DefaultObjectFactory  resultType=vo.User.class
+            /** 使用objectFactory初始化User对象*/
             return objectFactory.create(resultType); // eg1: 返回User{id=null, name='null', age=null, userContacts=null}
         } else if (shouldApplyAutomaticMappings(resultMap, false)) {
             return createByConstructorSignature(rsw, resultType, constructorArgTypes, constructorArgs, columnPrefix);
@@ -959,14 +1010,13 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         }
     }
 
-    //
-    // DISCRIMINATOR
-    //
-
     // eg1: columnPrefix=null
-    public ResultMap resolveDiscriminatedResultMap(ResultSet rs, ResultMap resultMap, String columnPrefix)
-            throws SQLException {
+    /**
+     * 解析结果集中的鉴别器<discriminate/>
+     */
+    public ResultMap resolveDiscriminatedResultMap(ResultSet rs, ResultMap resultMap, String columnPrefix) throws SQLException {
         Set<String> pastDiscriminators = new HashSet<String>();
+        /** 获得鉴别器 */
         Discriminator discriminator = resultMap.getDiscriminator();
         // eg1: discriminator=null
         while (discriminator != null) {
@@ -1306,6 +1356,10 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         return null;
     }
 
+    // eg1: resultType = vo.User.class
+    /**
+     * 判断resultType是否存在TypeHandler
+     */
     private boolean hasTypeHandlerForResultObject(ResultSetWrapper rsw, Class<?> resultType) {
         // eg1: rsw.getColumnNames().size() = 3
         if (rsw.getColumnNames().size() == 1) {

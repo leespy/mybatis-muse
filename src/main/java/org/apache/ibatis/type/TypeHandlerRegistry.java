@@ -43,10 +43,8 @@ import org.apache.ibatis.io.Resources;
  */
 public final class TypeHandlerRegistry {
 
-    private final Map<JdbcType, TypeHandler<?>> JDBC_TYPE_HANDLER_MAP =
-            new EnumMap<JdbcType, TypeHandler<?>>(JdbcType.class);
-    private final Map<Type, Map<JdbcType, TypeHandler<?>>> TYPE_HANDLER_MAP =
-            new ConcurrentHashMap<Type, Map<JdbcType, TypeHandler<?>>>();
+    private final Map<JdbcType, TypeHandler<?>> JDBC_TYPE_HANDLER_MAP = new EnumMap<JdbcType, TypeHandler<?>>(JdbcType.class);
+    private final Map<Type, Map<JdbcType, TypeHandler<?>>> TYPE_HANDLER_MAP = new ConcurrentHashMap<Type, Map<JdbcType, TypeHandler<?>>>();
     private final TypeHandler<Object> UNKNOWN_TYPE_HANDLER = new UnknownTypeHandler(this);
     private final Map<Class<?>, TypeHandler<?>> ALL_TYPE_HANDLERS_MAP = new HashMap<Class<?>, TypeHandler<?>>();
 
@@ -160,8 +158,10 @@ public final class TypeHandlerRegistry {
         register(char.class, new CharacterTypeHandler());
     }
 
+    // eg1: javaType = vo.User.class
     // eg1: javaType = java.lang.Long.class
     public boolean hasTypeHandler(Class<?> javaType) {
+        // eg1: 返回false
         // eg1: 返回true
         return hasTypeHandler(javaType, null);
     }
@@ -173,7 +173,7 @@ public final class TypeHandlerRegistry {
     // eg1: javaType=vo.User.class          jdbcType=null
     // eg1: javaType=java.lang.Long.class   jdbcType=null
     public boolean hasTypeHandler(Class<?> javaType, JdbcType jdbcType) {
-        // eg1: getTypeHandler((Type) javaType, jdbcType)=null
+        // eg1: getTypeHandler((Type) javaType, jdbcType)=null                            返回false
         // eg1: getTypeHandler((Type) javaType, jdbcType)={null: "class java.lang.Long"}  返回true
         return javaType != null && getTypeHandler((Type) javaType, jdbcType) != null;
     }
@@ -340,7 +340,6 @@ public final class TypeHandlerRegistry {
     }
 
     // java type + handler
-
     public <T> void register(Class<T> javaType, TypeHandler<? extends T> typeHandler) {
         register((Type) javaType, typeHandler);
     }
