@@ -72,6 +72,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
             if (Object.class.equals(method.getDeclaringClass())) {
                 return method.invoke(this, args);
             }
+
             /** 如果是接口中的default方法，则调用default方法 */
             else if (isDefaultMethod(method)) { // eg1: 不是default方法，返回false
                 return invokeDefaultMethod(proxy, method, args);
@@ -82,6 +83,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
         // eg1: method = public abstract vo.User mapper.UserMapper.getUserById(java.lang.Long)
         /** 初始化一个MapperMethod并放入缓存中 或者 从缓存中取出之前的MapperMethod */
         final MapperMethod mapperMethod = cachedMapperMethod(method);
+
         // eg1: sqlSession = DefaultSqlSession@1953  args = {2L}
         /** 调用MapperMethod.execute()方法执行SQL语句 */
         return mapperMethod.execute(sqlSession, args);

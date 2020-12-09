@@ -38,6 +38,8 @@ public final class MappedStatement {
 
     private String resource;
     private Configuration configuration;
+
+    // MappedStatement的唯一标识id
     private String id;
     private Integer fetchSize;
     private Integer timeout;
@@ -52,6 +54,8 @@ public final class MappedStatement {
     private boolean flushCacheRequired;
     private boolean useCache;
     private boolean resultOrdered;
+
+    // SqlCommandType = UNKNOWN, INSERT, UPDATE, DELETE, SELECT, FLUSH;
     private SqlCommandType sqlCommandType;
     private KeyGenerator keyGenerator;
     private String[] keyProperties;

@@ -227,8 +227,9 @@ public class MapperMethod {
 
     public static class SqlCommand {
 
-        /** MappedStatement的id */
+        /** MappedStatement的唯一标识id */
         private final String name;
+
         /** sql的命令类型 UNKNOWN, INSERT, UPDATE, DELETE, SELECT, FLUSH; */
         private final SqlCommandType type;
 
@@ -240,6 +241,11 @@ public class MapperMethod {
 
             // eg1: interface mapper.UserMapper
             final Class<?> declaringClass = method.getDeclaringClass();
+
+            /**
+             * String statementId = mapperInterface.getName() + "." + methodName;
+             * 尝试通过statementId，从Configuration中获得MappedStatement
+             */
             MappedStatement ms = resolveMappedStatement(mapperInterface, methodName, declaringClass, configuration);
 
             // eg1: ms不为空
@@ -253,7 +259,7 @@ public class MapperMethod {
                 }
             } else {
                 name = ms.getId(); // eg1: name = mapper.UserMapper.getUserById
-                type = ms.getSqlCommandType(); // eg1: type = SELECT
+                type = ms.getSqlCommandType(); // eg1: type = SqlCommandType.SELECT
                 if (type == SqlCommandType.UNKNOWN) {
                     throw new BindingException("Unknown execution method for: " + name);
                 }
@@ -271,6 +277,10 @@ public class MapperMethod {
         // eg1: mapperInterface = interface mapper.UserMapper
         //      methodName = "getUserById"
         //      declaringClass = interface mapper.UserMapper
+        /**
+         * String statementId = mapperInterface.getName() + "." + methodName;
+         * 尝试通过statementId，从Configuration中获得MappedStatement
+         */
         private MappedStatement resolveMappedStatement(Class<?> mapperInterface, String methodName,
                                                        Class<?> declaringClass, Configuration configuration) {
             String statementId = mapperInterface.getName() + "." + methodName;
@@ -281,6 +291,11 @@ public class MapperMethod {
             } else if (mapperInterface.equals(declaringClass)) {
                 return null;
             }
+            /**
+             * 如果没有找到mapperInterface对应的MappedStatement，
+             * 那么则遍历mapperInterface的接口，
+             * 查询这些接口是否有对应的MappedStatement，如果有，则返回。
+             */
             for (Class<?> superInterface : mapperInterface.getInterfaces()) {
                 if (declaringClass.isAssignableFrom(superInterface)) {
                     MappedStatement ms = resolveMappedStatement(superInterface, methodName,
@@ -296,15 +311,15 @@ public class MapperMethod {
 
     public static class MethodSignature {
 
-        private final boolean returnsMany;          // 判断返回类型是集合或者数组吗
-        private final boolean returnsMap;           // 判断返回类型是Map类型吗
-        private final boolean returnsVoid;          // 判断返回类型是集void吗
-        private final boolean returnsCursor;        // 判断返回类型是Cursor类型吗
-        private final Class<?> returnType;          // 方法返回类型
-        private final String mapKey;                // 获得@MapKey注解里面的value值
-        private final Integer resultHandlerIndex;   // 入参为ResultHandler类型的下标号
-        private final Integer rowBoundsIndex;       // 入参为RowBounds类型的下标号
-        private final ParamNameResolver paramNameResolver;
+        private final boolean returnsMany;                  // 判断返回类型是集合或者数组吗
+        private final boolean returnsMap;                   // 判断返回类型是Map类型吗
+        private final boolean returnsVoid;                  // 判断返回类型是集void吗
+        private final boolean returnsCursor;                // 判断返回类型是Cursor类型吗
+        private final Class<?> returnType;                  // 方法返回类型
+        private final String mapKey;                        // 获得@MapKey注解里面的value值
+        private final Integer resultHandlerIndex;           // 入参为ResultHandler类型的下标号
+        private final Integer rowBoundsIndex;               // 入参为RowBounds类型的下标号
+        private final ParamNameResolver paramNameResolver;  // 入参名称解析器
 
         // eg1: mapperInterface = interface mapper.UserMapper
         //      method = public abstract vo.User mapper.UserMapper.getUserById(java.lang.Long)
@@ -416,8 +431,7 @@ public class MapperMethod {
                     if (index == null) {
                         index = i;
                     } else {
-                        throw new BindingException(method.getName() + " cannot have multiple " + paramType.getSimpleName()
-                                        + " parameters");
+                        throw new BindingException(method.getName() + " cannot have multiple " + paramType.getSimpleName() + " parameters");
                     }
                 }
             }
