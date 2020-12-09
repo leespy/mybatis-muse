@@ -35,6 +35,8 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 /**
+ * 通过SqlCommandType来映射跳转到需要执行的方法
+ *
  * @author Clinton Begin
  * @author Eduardo Macarron
  * @author Lasse Voss
@@ -123,9 +125,7 @@ public class MapperMethod {
         } else if (Boolean.class.equals(method.getReturnType()) || Boolean.TYPE.equals(method.getReturnType())) {
             result = rowCount > 0;
         } else {
-            throw new BindingException(
-                    "Mapper method '" + command.getName() + "' has an unsupported return type: " + method
-                            .getReturnType());
+            throw new BindingException("Mapper method '" + command.getName() + "' has an unsupported return type: " + method.getReturnType());
         }
         return result;
     }
