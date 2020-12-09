@@ -83,10 +83,15 @@ public class CachingExecutor implements Executor {
     public <E> List<E> query(MappedStatement ms, Object parameterObject, RowBounds rowBounds,
                              ResultHandler resultHandler) throws SQLException {
         // eg1: parameterObject = {"id":2L, "param1":2L}
+        /** 获得boundSql对象，承载着sql和对应的参数*/
         BoundSql boundSql = ms.getBoundSql(parameterObject);
+
         // eg1: parameterObject = {"id":2L, "param1":2L}  rowBounds = new RowBounds()
+        /** 生成缓存key */
         CacheKey key = createCacheKey(ms, parameterObject, rowBounds, boundSql);
+
         // eg1: parameterObject = {"id":2L, "param1":2L}  rowBounds = new RowBounds() resultHandler = null
+        /** 执行查询语句 */
         return query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
     }
 

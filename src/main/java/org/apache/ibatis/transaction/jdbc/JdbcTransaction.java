@@ -102,8 +102,7 @@ public class JdbcTransaction implements Transaction {
             // 如果事务的自动提交设置有改变，则更新事务提交策略
             if (connection.getAutoCommit() != desiredAutoCommit) {
                 if (log.isDebugEnabled()) {
-                    log.debug(
-                            "Setting autocommit to " + desiredAutoCommit + " on JDBC Connection [" + connection + "]");
+                    log.debug("Setting autocommit to " + desiredAutoCommit + " on JDBC Connection [" + connection + "]");
                 }
 
                 // 由jdbc控制事务是否自动提交

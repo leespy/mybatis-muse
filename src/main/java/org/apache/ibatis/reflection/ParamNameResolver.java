@@ -148,8 +148,10 @@ public class ParamNameResolver {
         if (args == null || paramCount == 0) {
             return null;
         }
-        /** 如果不包含@Param注解*/
-        else if (!hasParamAnnotation && paramCount == 1) { // eg1: hasParamAnnotation=true
+
+        // eg1: hasParamAnnotation=true
+        /** 如果不包含@Param注解并且只有一个入参*/
+        else if (!hasParamAnnotation && paramCount == 1) {
             return args[names.firstKey()]; // 0 -> "arg0"
         } else {
             final Map<String, Object> param = new ParamMap<>();

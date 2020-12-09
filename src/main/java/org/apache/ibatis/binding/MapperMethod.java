@@ -89,9 +89,12 @@ public class MapperMethod {
                 } else if (method.returnsCursor()) { // eg1: method.returnsCursor() = false
                     result = executeForCursor(sqlSession, args);
                 } else {
-                    // eg1:  args = {2L}
+                    // eg1: args = {2L}
+                    /** 将参数转换为sql语句需要的入参 */
                     Object param = method.convertArgsToSqlCommandParam(args);
+
                     // eg1: command.getName()="mapper.UserMapper.getUserById" param={"id":2L, "param1":2L} sqlSession=DefaultSqlSession
+                    /** 执行sql查询操作 */
                     result = sqlSession.selectOne(command.getName(), param);
                 }
                 break;
@@ -347,6 +350,9 @@ public class MapperMethod {
         }
 
         // eg1: args = {2L}
+        /**
+         * 将参数转换为sql语句需要的入参
+         */
         public Object convertArgsToSqlCommandParam(Object[] args) {
             return paramNameResolver.getNamedParams(args);
         }
