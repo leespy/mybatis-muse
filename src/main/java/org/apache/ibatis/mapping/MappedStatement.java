@@ -305,16 +305,18 @@ public final class MappedStatement {
     public BoundSql getBoundSql(Object parameterObject) {
         // eg1: sqlSource = RawSqlSource  parameterObject = {"id":2L, "param1":2L}
         BoundSql boundSql = sqlSource.getBoundSql(parameterObject);
+
         // eg1: parameterMappings[0] = {property='id', mode=IN, javaType=class java.lang.Long, jdbcType=null, numericScale=null, resultMapId='null', jdbcTypeName='null', expression='null'}
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+
         // eg1: parameterMappings不为空
         if (parameterMappings == null || parameterMappings.isEmpty()) {
-            boundSql = new BoundSql(configuration, boundSql.getSql(), parameterMap.getParameterMappings(),
-                    parameterObject);
+            /** 如果boundSql里的parameterMappings为空，那么用parameterMap的parameterMappings再次构建权限的BoundSql对象 */
+            boundSql = new BoundSql(configuration, boundSql.getSql(), parameterMap.getParameterMappings(), parameterObject);
         }
 
         /**
-         * check for nested result maps in parameter mappings (issue #30)
+         * 如果配置了resultMap，则判断赋值hasNestedResultMaps，判断是否有聚合的结果集
          */
         for (ParameterMapping pm : boundSql.getParameterMappings()) {
             // eg1: rmId = resultMapId = null  由于UserMapper.xml中配置的是resultType="vo.User"而不是resultMap，所以rmId=null

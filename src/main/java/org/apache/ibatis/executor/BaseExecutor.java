@@ -147,17 +147,24 @@ public abstract class BaseExecutor implements Executor {
         if (closed) {
             throw new ExecutorException("Executor was closed.");
         }
+
         // eg1: queryStack = 0  ms.isFlushCacheRequired() = false
+        /** 如果配置了flushCacheRequired=true并且queryStack=0（没有正在执行的查询操作），则会执行清空缓存操作*/
         if (queryStack == 0 && ms.isFlushCacheRequired()) {
             clearLocalCache();
         }
+
         List<E> list;
         try {
+            /** 记录正在执行查询操作的任务数*/
             queryStack++; // eg1: queryStack=1
+
             // eg1: resultHandler=null localCache.getObject(key)=null
+            /** localCache维护一级缓存，试图从一级缓存中获取结果数据，如果有数据，则返回结果；如果没有数据，再执行queryFromDatabase */
             list = resultHandler == null ? (List<E>) localCache.getObject(key) : null;
             // eg1: list = null
             if (list != null) {
+                /** 如果是执行存储过程 */
                 handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
             } else {
                 // eg1: parameter = {"id": 2L, "param1", 2L}  rowBounds = new RowBounds() resultHandler = null
@@ -167,11 +174,15 @@ public abstract class BaseExecutor implements Executor {
             queryStack--;
         }
         if (queryStack == 0) {
+            /** 延迟加载处理 */
             for (DeferredLoad deferredLoad : deferredLoads) {
                 deferredLoad.load();
             }
             // issue #601
             deferredLoads.clear();
+
+            // eg1: configuration.getLocalCacheScope()=SESSION
+            /** 如果设置了<setting name="localCacheScope" value="STATEMENT"/>，则会每次执行完清空缓存。即：使得一级缓存失效 */
             if (configuration.getLocalCacheScope() == LocalCacheScope.STATEMENT) {
                 // issue #482
                 clearLocalCache();
@@ -325,6 +336,7 @@ public abstract class BaseExecutor implements Executor {
 
     private void handleLocallyCachedOutputParameters(MappedStatement ms, CacheKey key, Object parameter,
                                                      BoundSql boundSql) {
+        /** 如果是执行存储过程 */
         if (ms.getStatementType() == StatementType.CALLABLE) {
             final Object cachedParameter = localOutputParameterCache.getObject(key);
             if (cachedParameter != null && parameter != null) {
@@ -353,7 +365,7 @@ public abstract class BaseExecutor implements Executor {
         } finally {
             localCache.removeObject(key);
         }
-        /** 将查询结果放到缓存中*/
+        /** 将查询结果放到一级缓存中，如果同一session中有相同查询操作，则可以直接从缓存中获取结果*/
         localCache.putObject(key, list);
         // eg1: ms.getStatementType() = PREPARED
         if (ms.getStatementType() == StatementType.CALLABLE) {

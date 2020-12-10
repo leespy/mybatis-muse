@@ -104,6 +104,8 @@ public class SimpleExecutor extends BaseExecutor {
     // eg1: handler=RoutingStatementHandler
     private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
         Statement stmt;
+
+        /** 获得Connection实例 */
         Connection connection = getConnection(statementLog);
 
         // eg1: handler=RoutingStatementHandler

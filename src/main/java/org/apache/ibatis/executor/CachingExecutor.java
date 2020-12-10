@@ -107,14 +107,26 @@ public class CachingExecutor implements Executor {
                              ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
         Cache cache = ms.getCache();
         // eg1: cache = null
+        /** 如果在UserMapper.xml配置了<cache/>开启了二级缓存，则cache不为null*/
         if (cache != null) {
+            /**
+             * 如果flushCacheRequired=true并且缓存中有数据，则先清空缓存
+             *
+             * <select id="save" parameterType="XXXXXEO" statementType="CALLABLE" flushCache="true" useCache="false">
+             *     ……
+             * </select>
+             * */
             flushCacheIfRequired(ms);
+
+            /** 如果useCache=true并且resultHandler=null*/
             if (ms.isUseCache() && resultHandler == null) {
                 ensureNoOutParams(ms, parameterObject, boundSql);
                 @SuppressWarnings("unchecked")
                 List<E> list = (List<E>) tcm.getObject(cache, key);
                 if (list == null) {
+                    /** 执行查询语句 */
                     list = delegate.<E>query(ms, parameterObject, rowBounds, resultHandler, key, boundSql);
+                    /** 以cacheKey为主键，将结果维护到缓存中 */
                     tcm.putObject(cache, key, list); // issue #578 and #116
                 }
                 return list;

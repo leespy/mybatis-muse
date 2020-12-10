@@ -86,8 +86,8 @@ public abstract class BaseStatementHandler implements StatementHandler {
         return parameterHandler;
     }
 
-    // eg1: delegate=PreparedStatementHandler
 
+    // eg1: delegate=PreparedStatementHandler
     /**
      * 执行预编译语句
      */
