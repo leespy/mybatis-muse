@@ -65,6 +65,7 @@ public class DefaultParameterHandler implements ParameterHandler {
     @Override
     public void setParameters(PreparedStatement ps) {
         ErrorContext.instance().activity("setting parameters").object(mappedStatement.getParameterMap().getId());
+
         // eg1: parameterMappings[0] = ParameterMapping{property='id', mode=IN, javaType=class java.lang.Long, jdbcType=null, numericScale=null, resultMapId='null', jdbcTypeName='null', expression='null'}
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
         if (parameterMappings != null) {

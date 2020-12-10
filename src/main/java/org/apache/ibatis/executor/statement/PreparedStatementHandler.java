@@ -63,9 +63,12 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     public <E> List<E> query(Statement statement, ResultHandler resultHandler) throws SQLException {
         /** 最终还是使用JDBC去进行数据操作 */
         PreparedStatement ps = (PreparedStatement) statement;
+
         /** 执行查询操作 */
         ps.execute();
+
         // eg1: 封装结果集 resultSetHandler=DefaultResultSetHandler
+        /** 将结果集进行封装 */
         return resultSetHandler.handleResultSets(ps);
     }
 
@@ -84,6 +87,7 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     protected Statement instantiateStatement(Connection connection) throws SQLException {
         // eg1: sql="select id, name, age from tb_user where id = ?"
         String sql = boundSql.getSql();
+
         // eg1: mappedStatement.getKeyGenerator=NoKeyGenerator
         if (mappedStatement.getKeyGenerator() instanceof Jdbc3KeyGenerator) {
             String[] keyColumnNames = mappedStatement.getKeyColumns();

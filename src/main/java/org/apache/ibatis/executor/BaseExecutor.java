@@ -367,6 +367,7 @@ public abstract class BaseExecutor implements Executor {
         }
         /** 将查询结果放到一级缓存中，如果同一session中有相同查询操作，则可以直接从缓存中获取结果*/
         localCache.putObject(key, list);
+
         // eg1: ms.getStatementType() = PREPARED
         if (ms.getStatementType() == StatementType.CALLABLE) {
             localOutputParameterCache.putObject(key, parameter);

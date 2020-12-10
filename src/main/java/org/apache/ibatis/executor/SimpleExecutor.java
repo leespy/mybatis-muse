@@ -112,7 +112,7 @@ public class SimpleExecutor extends BaseExecutor {
         /** 调用了StatementHandler的prepared进行了sql的预编译 */
         stmt = handler.prepare(connection, transaction.getTimeout());
 
-        /** 通过StatementHandler的parameterize来给sql设置入参 */
+        /** 通过PreparedStatementHandler的parameterize来给sql设置入参 */
         handler.parameterize(stmt);
 
         // eg1: 返回org.apache.ibatis.logging.jdbc.PreparedStatementLogger@2e570ded
