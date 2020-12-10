@@ -188,18 +188,20 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         final List<Object> multipleResults = new ArrayList<>();
         int resultSetCount = 0;
 
-        /** 获得执行后的结果集，并封装到ResultSetWrapper */
+        /** 首先：获得执行后的结果集，并封装到ResultSetWrapper */
         ResultSetWrapper rsw = getFirstResultSet(stmt);
-        List<ResultMap> resultMaps = mappedStatement.getResultMaps();
-        // eg1: resultMapCount = 1
-        int resultMapCount = resultMaps.size();
 
-        /** 验证rsw和resultMaps是否为空 */
+        /** 其次：如果rsw != null && resultMapCount < 1，则抛异常ExecutorException */
+        List<ResultMap> resultMaps = mappedStatement.getResultMaps();
+        int resultMapCount = resultMaps.size(); // eg1: resultMapCount = 1
         validateResultMapsCount(rsw, resultMapCount);
 
         // eg1: rsw不为空 resultMapCount=1 resultSetCount=0
+        /** 第三步：处理结果集 */
         while (rsw != null && resultMapCount > resultSetCount) {
+            // eg1: ResultMap resultMap=resultMaps.get(0);
             ResultMap resultMap = resultMaps.get(resultSetCount);
+
             /** 处理结果集 */
             handleResultSet(rsw, resultMap, multipleResults, null);
 
@@ -240,7 +242,11 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         List<ResultMap> resultMaps = mappedStatement.getResultMaps();
 
         int resultMapCount = resultMaps.size();
+
+        /** 如果rsw != null && resultMapCount < 1，则抛出异常ExecutorException */
         validateResultMapsCount(rsw, resultMapCount);
+
+        /** 不可以是多结果集，否则抛出异常ExecutorException */
         if (resultMapCount != 1) {
             throw new ExecutorException("Cursor results cannot be mapped to multiple resultMaps");
         }
@@ -251,12 +257,19 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 
     // eg1: 执行到这里
     private ResultSetWrapper getFirstResultSet(Statement stmt) throws SQLException {
-        // eg1: 通过JDBC，获得ResultSet，且不为空
+        // eg1: rs != null
+        /** 通过JDBC获得结果集ResultSet */
         ResultSet rs = stmt.getResultSet();
         while (rs == null) {
             if (stmt.getMoreResults()) {
                 rs = stmt.getResultSet();
             } else {
+                /**
+                 * getUpdateCount()==-1,既不是结果集,又不是更新计数了.说明没的返回了。
+                 * 如果getUpdateCount()>=0,则说明当前指针是更新计数(0的时候有可能是DDL指令)。
+                 * 无论是返回结果集或是更新计数,那么则可能还继续有其它返回。
+                 * 只有在当前指指针getResultSet()==null && getUpdateCount()==-1才说明没有再多的返回。
+                 */
                 if (stmt.getUpdateCount() == -1) {
                     // no more results. Must be no resultset
                     break;
@@ -264,6 +277,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
             }
         }
         // eg1: rs不为空，则将结果集封装到ResultSetWrapper中
+        /** 将结果集ResultSet封装到ResultSetWrapper实例中 */
         return rs != null ? new ResultSetWrapper(rs, configuration) : null;
     }
 
