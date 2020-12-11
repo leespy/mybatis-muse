@@ -156,20 +156,39 @@ public class ResultSetWrapper {
         return null;
     }
 
+    // eg1: columnPrefix=null
+    /**
+     * 加载映射的列（mappedColumnNamesMap）与未映射的列（unMappedColumnNamesMap）
+     */
     private void loadMappedAndUnmappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
-        List<String> mappedColumnNames = new ArrayList<String>();
-        List<String> unmappedColumnNames = new ArrayList<String>();
+        List<String> mappedColumnNames = new ArrayList<>();
+        List<String> unmappedColumnNames = new ArrayList<>();
         final String upperColumnPrefix = columnPrefix == null ? null : columnPrefix.toUpperCase(Locale.ENGLISH);
-        final Set<String> mappedColumns = prependPrefixes(resultMap.getMappedColumns(), upperColumnPrefix);
+        // eg1: resultMap.getMappedColumns().size=0  upperColumnPrefix=null
+        final Set<String> mappedColumns = prependPrefixes(resultMap.getMappedColumns(), upperColumnPrefix); // eg1: mappedColumns.size()=0
+        // eg1: columnNames={"id"，"name"，"age"}
         for (String columnName : columnNames) {
+            // eg1: upperColumnName="ID"
+            // eg1: upperColumnName="NAME"
+            // eg1: upperColumnName="AGE"
             final String upperColumnName = columnName.toUpperCase(Locale.ENGLISH);
             if (mappedColumns.contains(upperColumnName)) {
                 mappedColumnNames.add(upperColumnName);
             } else {
+                // eg1: unmappedColumnNames={"id"}
+                // eg1: unmappedColumnNames={"id", "name"}
+                // eg1: unmappedColumnNames={"id", "name", "age"}
                 unmappedColumnNames.add(columnName);
             }
         }
+        // eg1: getMapKey(resultMap, columnPrefix)=mapper.UserMapper.getUserById-Inline:null
+        //      mappedColumnNames.key="mapper.UserMapper.getUserById-Inline:null"
+        //      mappedColumnNames.value={}
         mappedColumnNamesMap.put(getMapKey(resultMap, columnPrefix), mappedColumnNames);
+
+        // eg1: getMapKey(resultMap, columnPrefix)=mapper.UserMapper.getUserById-Inline:null
+        //      unmappedColumnNames.key="mapper.UserMapper.getUserById-Inline:null"
+        //      unmappedColumnNames.value={"id", "name", "age"}
         unMappedColumnNamesMap.put(getMapKey(resultMap, columnPrefix), unmappedColumnNames);
     }
 
@@ -179,30 +198,39 @@ public class ResultSetWrapper {
         List<String> mappedColumnNames = mappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
         // eg1: mappedColumnNames是空的列表，但不是null
         if (mappedColumnNames == null) {
+            /** 加载映射的列（mappedColumnNamesMap）与未映射的列（unMappedColumnNamesMap） */
             loadMappedAndUnmappedColumnNames(resultMap, columnPrefix);
             mappedColumnNames = mappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
         }
         return mappedColumnNames; // eg1: 返回空的列表
     }
 
+    // eg1: columnPrefix=null
     public List<String> getUnmappedColumnNames(ResultMap resultMap, String columnPrefix) throws SQLException {
+        // eg1: getMapKey(resultMap, columnPrefix)=mapper.UserMapper.getUserById-Inline:null    unMappedColumnNamesMap.size()=0
         List<String> unMappedColumnNames = unMappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
+
+        // eg1: unMappedColumnNames=null
         if (unMappedColumnNames == null) {
+            // eg1: columnPrefix=null
             loadMappedAndUnmappedColumnNames(resultMap, columnPrefix);
+            // eg1: unMappedColumnNames={"id", "name", "age"}
             unMappedColumnNames = unMappedColumnNamesMap.get(getMapKey(resultMap, columnPrefix));
         }
-        return unMappedColumnNames;
+        return unMappedColumnNames; // eg1: unMappedColumnNames={"id", "name", "age"}
     }
 
     private String getMapKey(ResultMap resultMap, String columnPrefix) {
         return resultMap.getId() + ":" + columnPrefix;
     }
 
+    // eg1: columnNames.size()=0  prefix=null
     private Set<String> prependPrefixes(Set<String> columnNames, String prefix) {
+        // eg1: columnNames.size()=0  columnNames.isEmpty()=true  prefix=null
         if (columnNames == null || columnNames.isEmpty() || prefix == null || prefix.length() == 0) {
-            return columnNames;
+            return columnNames; // eg1: columnNames.size()=0
         }
-        final Set<String> prefixed = new HashSet<String>();
+        final Set<String> prefixed = new HashSet<>();
         for (String columnName : columnNames) {
             prefixed.add(prefix + columnName);
         }

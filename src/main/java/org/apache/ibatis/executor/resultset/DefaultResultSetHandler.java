@@ -603,80 +603,87 @@ public class DefaultResultSetHandler implements ResultSetHandler {
      * 创建自动映射
      */
     private List<UnMappedColumnAutoMapping> createAutomaticMappings(ResultSetWrapper rsw, ResultMap resultMap,
-                                                                    MetaObject metaObject, String columnPrefix)
-            throws SQLException {
+                                                                    MetaObject metaObject, String columnPrefix) throws SQLException {
         // eg1: mapKey="mapper.UserMapper.getUserById-Inline:null"
         final String mapKey = resultMap.getId() + ":" + columnPrefix;
+
+        // eg1: autoMapping=null
         List<UnMappedColumnAutoMapping> autoMapping = autoMappingsCache.get(mapKey);
-        // eg1: autoMapping不为空，不执行以下逻辑
         if (autoMapping == null) {
-            autoMapping = new ArrayList<UnMappedColumnAutoMapping>();
+            autoMapping = new ArrayList<>();
+
+            // eg1: columnPrefix=null  unMappedColumnNames={"id", "name", "age"}
             final List<String> unmappedColumnNames = rsw.getUnmappedColumnNames(resultMap, columnPrefix);
             for (String columnName : unmappedColumnNames) {
+                // eg1: columnName="id"
+                // eg1: columnName="name"
+                // eg1: columnName="age"
                 String propertyName = columnName;
+                // eg1: columnPrefix=null
                 if (columnPrefix != null && !columnPrefix.isEmpty()) {
-                    // When columnPrefix is specified,
-                    // ignore columns without the prefix.
                     if (columnName.toUpperCase(Locale.ENGLISH).startsWith(columnPrefix)) {
                         propertyName = columnName.substring(columnPrefix.length());
                     } else {
                         continue;
                     }
                 }
-                final String property =
-                        metaObject.findProperty(propertyName, configuration.isMapUnderscoreToCamelCase());
+                // eg1: configuration.isMapUnderscoreToCamelCase()=true
+                // eg1: property="id"
+                // eg1: property="name"
+                // eg1: property="age"
+                final String property = metaObject.findProperty(propertyName, configuration.isMapUnderscoreToCamelCase());
+                // eg1: property="id" metaObject.hasSetter(property)=true
+                // eg1: property="name" metaObject.hasSetter(property)=true
+                // eg1: property="age" metaObject.hasSetter(property)=true
                 if (property != null && metaObject.hasSetter(property)) {
+                    // eg1: resultMap.getMappedProperties().size=0
                     if (resultMap.getMappedProperties().contains(property)) {
                         continue;
                     }
+                    // eg1: propertyType=java.lang.Long.class
+                    // eg1: propertyType=java.lang.String.class
+                    // eg1: propertyType=java.lang.Integer.class
                     final Class<?> propertyType = metaObject.getSetterType(property);
+                    // eg1: rsw.getJdbcType(columnName)=BIGINT  columnName="id"
+                    // eg1: rsw.getJdbcType(columnName)=VARCHAR  columnName="name"
+                    // eg1: rsw.getJdbcType(columnName)=INTEGER  columnName="age"
                     if (typeHandlerRegistry.hasTypeHandler(propertyType, rsw.getJdbcType(columnName))) {
+                        // eg1: typeHandler=LongTypeHandler
+                        // eg1: typeHandler=StringTypeHandler
+                        // eg1: typeHandler=IntegerTypeHandler
                         final TypeHandler<?> typeHandler = rsw.getTypeHandler(propertyType, columnName);
-                        autoMapping.add(new UnMappedColumnAutoMapping(columnName, property, typeHandler,
-                                propertyType.isPrimitive()));
+                        autoMapping.add(new UnMappedColumnAutoMapping(columnName, property, typeHandler, propertyType.isPrimitive()));
                     } else {
-                        configuration.getAutoMappingUnknownColumnBehavior()
-                                .doAction(mappedStatement, columnName, property, propertyType);
+                        configuration.getAutoMappingUnknownColumnBehavior().doAction(mappedStatement, columnName, property, propertyType);
                     }
                 } else {
                     configuration.getAutoMappingUnknownColumnBehavior()
                             .doAction(mappedStatement, columnName, (property != null) ? property : propertyName, null);
                 }
             }
+
+            // eg1: mapKey="mapper.UserMapper.getUserById-Inline:null"
             autoMappingsCache.put(mapKey, autoMapping);
         }
+
+        // eg1: autoMapping={UnMappedColumnAutoMapping("id", "id", LongTypeHandler@2397, false),
+        //                   UnMappedColumnAutoMapping("name", "name", StringTypeHandler@2418, false),
+        //                   UnMappedColumnAutoMapping("age", "age", IntegerTypeHandler@2433, false)}
         return autoMapping;
     }
 
     // eg1: columnPrefix=null
     private boolean applyAutomaticMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject,
                                            String columnPrefix) throws SQLException {
+
+
         /** 创建自动映射 */
         List<UnMappedColumnAutoMapping> autoMapping = createAutomaticMappings(rsw, resultMap, metaObject, columnPrefix);
         boolean foundValues = false;
-        // eg1: autoMapping.size=3
-        //
-        // autoMapping：
-        // [
-        //  {
-        //    "column": "id",
-        //    "property": "id",
-        //    "typeHandler": LongTypeHandler,
-        //    "primitive": false
-        //  },
-        //  {
-        //    "column": "name",
-        //    "property": "name",
-        //    "typeHandler": StringTypeHandler,
-        //    "primitive": false
-        //  },
-        //  {
-        //    "column": "age",
-        //    "property": "age",
-        //    "typeHandler": IntegerTypeHandler,
-        //    "primitive": false
-        //  }
-        //]
+
+        // eg1: autoMapping={UnMappedColumnAutoMapping("id", "id", LongTypeHandler@2397, false),
+        //                   UnMappedColumnAutoMapping("name", "name", StringTypeHandler@2418, false),
+        //                   UnMappedColumnAutoMapping("age", "age", IntegerTypeHandler@2433, false)}
         if (autoMapping.size() > 0) {
             for (UnMappedColumnAutoMapping mapping : autoMapping) {
                 // eg1: mapping.column="id"      mapping.typeHandler=LongTypeHandler       value=2L
@@ -693,7 +700,6 @@ public class DefaultResultSetHandler implements ResultSetHandler {
                 // eg1: configuration.isCallSettersOnNulls()=false  mapping.primitive=false
                 // eg1: configuration.isCallSettersOnNulls()=false  mapping.primitive=false
                 if (value != null || (configuration.isCallSettersOnNulls() && !mapping.primitive)) {
-                    /** gcode issue #377, call setter on nulls (value is not 'found') */
                     // eg1: mapping.property="id"  value=2L
                     // eg1: mapping.property="name"  value="muse2"
                     // eg1: mapping.property="age"  value=24
@@ -825,7 +831,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
             // eg1: objectFactory=DefaultObjectFactory  resultType=vo.User.class
             /** 使用objectFactory初始化User对象*/
             return objectFactory.create(resultType); // eg1: 返回User{id=null, name='null', age=null, userContacts=null}
-        } else if (shouldApplyAutomaticMappings(resultMap, false)) {
+        }
+
+        else if (shouldApplyAutomaticMappings(resultMap, false)) {
             return createByConstructorSignature(rsw, resultType, constructorArgTypes, constructorArgs, columnPrefix);
         }
         throw new ExecutorException("Do not know how to create an instance of " + resultType);
