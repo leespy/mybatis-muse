@@ -202,7 +202,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
             // eg1: ResultMap resultMap=resultMaps.get(0);
             ResultMap resultMap = resultMaps.get(resultSetCount);
 
-            /** 处理结果集 */
+            /** 处理结果集, 存储在multipleResults中 */
             handleResultSet(rsw, resultMap, multipleResults, null);
 
             // eg1: rsw=null
@@ -397,7 +397,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
                                                    ResultHandler<?> resultHandler, RowBounds rowBounds,
                                                    ResultMapping parentMapping) throws SQLException {
         DefaultResultContext<Object> resultContext = new DefaultResultContext<>();
+
         // eg1: skipRows里面没做什么事情
+        /** 将指针移动到rowBounds.getOffset()指定的行号，即：略过（skip）offset之前的行 */
         skipRows(rsw.getResultSet(), rowBounds);
 
         // eg1: shouldProcessMoreRows(resultContext, rowBounds) = true    rsw.getResultSet().next() = true
@@ -405,7 +407,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
             /** 解析结果集中的鉴别器<discriminate/> */
             ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(rsw.getResultSet(), resultMap, null);
 
-            /** 将数据库操作结果保存到POJO并返回*/
+            /** 将数据库操作结果保存到POJO并返回 */
             Object rowValue = getRowValue(rsw, discriminatedResultMap);
 
             // eg1: rowValue=User{id=2, name='muse2', age=24, userContacts=null}  parentMapping = null
@@ -443,6 +445,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     }
 
     // eg1:
+    /**
+     * 判断是否应该获取更多的行
+     */
     private boolean shouldProcessMoreRows(ResultContext<?> context, RowBounds rowBounds) throws SQLException {
         // eg1: context.isStopped() = false
         //      context.getResultCount() = 0
@@ -451,15 +456,30 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     }
 
     // eg1:
+    /**
+     * 将指针移动到rowBounds.getOffset()指定的行号，即：略过（skip）offset之前的行
+     *
+     * @param rs
+     * @param rowBounds
+     * @throws SQLException
+     */
     private void skipRows(ResultSet rs, RowBounds rowBounds) throws SQLException {
         // eg1: rs.getType() = 1003 = ResultSet.TYPE_FORWARD_ONLY
+        /**
+         * ResultSet.TYPE_FORWARD_ONLY          结果集的游标只能向下滚动
+         * ResultSet.TYPE_SCROLL_INSENSITIVE    结果集的游标可以上下移动，当数据库变化时，当前结果集不变。
+         * ResultSet.TYPE_SCROLL_SENSITIVE      返回可滚动的结果集，当数据库变化时，当前结果集同步改变
+         */
         if (rs.getType() != ResultSet.TYPE_FORWARD_ONLY) {
+            /** rowBounds.getOffset()不为0 */
             if (rowBounds.getOffset() != RowBounds.NO_ROW_OFFSET) {
+                /** 将指针移动到此ResultSet对象的给定行编号rowBounds.getOffset()。 */
                 rs.absolute(rowBounds.getOffset());
             }
         } else {
             // eg1: rowBounds.getOffset() = 0
             for (int i = 0; i < rowBounds.getOffset(); i++) {
+                /** 将指针移动到此ResultSet对象的给定行编号rowBounds.getOffset()。 */
                 rs.next();
             }
         }
@@ -475,10 +495,12 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 
         // eg1: rowValue=User{id=null, name='null', age=null, userContacts=null}   hasTypeHandlerForResultObject(rsw, resultMap.getType())=false
         if (rowValue != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) {
-            /** 将rowValue赋值给metaObject */
+            /** 创建rowValue的metaObject */
             final MetaObject metaObject = configuration.newMetaObject(rowValue);
+
             // eg1: foundValues = useConstructorMappings = false
             boolean foundValues = this.useConstructorMappings;
+
             // eg1: shouldApplyAutomaticMappings(resultMap, false) = true
             /** 是否应用自动映射 */
             if (shouldApplyAutomaticMappings(resultMap, false)) {
@@ -491,9 +513,12 @@ public class DefaultResultSetHandler implements ResultSetHandler {
 
             // eg1: foundValues=true
             foundValues = applyPropertyMappings(rsw, resultMap, metaObject, lazyLoader, null) || foundValues;
+
             // eg1: lazyLoader.size()=0   foundValues=true
             foundValues = lazyLoader.size() > 0 || foundValues;
+
             // eg1: foundValues=true  configuration.isReturnInstanceForEmptyRow()=false
+            /** configuration.isReturnInstanceForEmptyRow() 当返回行的所有列都是空时，MyBatis默认返回null。当开启这个设置时，MyBatis会返回一个空实例。*/
             rowValue = (foundValues || configuration.isReturnInstanceForEmptyRow()) ? rowValue : null;
         }
         return rowValue; // eg1: rowValue=User{id=2, name='muse2', age=24, userContacts=null}
@@ -744,20 +769,21 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         final List<Class<?>> constructorArgTypes = new ArrayList<>();
         final List<Object> constructorArgs = new ArrayList<>();
 
-        /** 创建一个resultMap.getType()类型的实例对象 */
+        /** 创建一个空的resultMap.getType()类型的实例对象 */
         Object resultObject = createResultObject(rsw, resultMap, constructorArgTypes, constructorArgs, columnPrefix);
+
         // eg1: resultObject=User{id=null, name='null', age=null, userContacts=null}
         //      hasTypeHandlerForResultObject(rsw, resultMap.getType()) = false
         /** 判断resultMap.getType()是否存在TypeHandler */
         if (resultObject != null && !hasTypeHandlerForResultObject(rsw, resultMap.getType())) {
             final List<ResultMapping> propertyMappings = resultMap.getPropertyResultMappings();
+
             // eg1: propertyMappings={}
             for (ResultMapping propertyMapping : propertyMappings) {
-                // issue gcode #109 && issue #149
+                /** 如果是聚合查询并且配置了懒加载 */
                 if (propertyMapping.getNestedQueryId() != null && propertyMapping.isLazy()) {
-                    resultObject = configuration.getProxyFactory()
-                            .createProxy(resultObject, lazyLoader, configuration, objectFactory, constructorArgTypes,
-                                    constructorArgs);
+                    resultObject = configuration.getProxyFactory().createProxy(resultObject, lazyLoader, configuration,
+                            objectFactory, constructorArgTypes, constructorArgs);
                     break;
                 }
             }
@@ -772,7 +798,10 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     private Object createResultObject(ResultSetWrapper rsw, ResultMap resultMap, List<Class<?>> constructorArgTypes,
                                       List<Object> constructorArgs, String columnPrefix) throws SQLException {
         // eg1: resultType = vo.User.class
+        /** 获得需要转换为POJO的类型 */
         final Class<?> resultType = resultMap.getType();
+
+        /** 将POJO类型包装成MetaClass */
         final MetaClass metaType = MetaClass.forClass(resultType, reflectorFactory);
 
         // eg1: constructorMappings = {}
@@ -781,12 +810,16 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         // eg1: hasTypeHandlerForResultObject(rsw, resultType) = false
         /** 判断resultType是否存在TypeHandler */
         if (hasTypeHandlerForResultObject(rsw, resultType)) {
+            /** 创建原始的ResultObject，即：通过配置好的TypeHandler来创建 */
             return createPrimitiveResultObject(rsw, resultMap, columnPrefix);
         }
+
         // eg1: constructorMappings.isEmpty()=true
         else if (!constructorMappings.isEmpty()) {
+            /** 创建参数化的ResultObject */
             return createParameterizedResultObject(rsw, resultType, constructorMappings, constructorArgTypes, constructorArgs, columnPrefix);
         }
+
         // eg1: resultType.isInterface()=false  metaType.hasDefaultConstructor()=true
         else if (resultType.isInterface() || metaType.hasDefaultConstructor()) {
             // eg1: objectFactory=DefaultObjectFactory  resultType=vo.User.class
@@ -798,6 +831,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         throw new ExecutorException("Do not know how to create an instance of " + resultType);
     }
 
+    /**
+     * 创建参数化的ResultObject
+     */
     Object createParameterizedResultObject(ResultSetWrapper rsw, Class<?> resultType,
                                            List<ResultMapping> constructorMappings,
                                            List<Class<?>> constructorArgTypes, List<Object> constructorArgs,
@@ -902,6 +938,9 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         return names;
     }
 
+    /**
+     * 创建原始的ResultObject，即：通过配置好的TypeHandler来创建
+     */
     private Object createPrimitiveResultObject(ResultSetWrapper rsw, ResultMap resultMap, String columnPrefix)
             throws SQLException {
         final Class<?> resultType = resultMap.getType();
@@ -1029,7 +1068,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
      * 解析结果集中的鉴别器<discriminate/>
      */
     public ResultMap resolveDiscriminatedResultMap(ResultSet rs, ResultMap resultMap, String columnPrefix) throws SQLException {
-        Set<String> pastDiscriminators = new HashSet<String>();
+        Set<String> pastDiscriminators = new HashSet<>();
         /** 获得鉴别器 */
         Discriminator discriminator = resultMap.getDiscriminator();
         // eg1: discriminator=null
@@ -1050,8 +1089,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         return resultMap;
     }
 
-    private Object getDiscriminatorValue(ResultSet rs, Discriminator discriminator, String columnPrefix)
-            throws SQLException {
+    private Object getDiscriminatorValue(ResultSet rs, Discriminator discriminator, String columnPrefix) throws SQLException {
         final ResultMapping resultMapping = discriminator.getResultMapping();
         final TypeHandler<?> typeHandler = resultMapping.getTypeHandler();
         return typeHandler.getResult(rs, prependPrefix(resultMapping.getColumn(), columnPrefix));

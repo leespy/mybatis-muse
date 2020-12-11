@@ -53,18 +53,14 @@ public class DefaultObjectFactory implements ObjectFactory, Serializable {
     @SuppressWarnings("unchecked")
     @Override
     public <T> T create(Class<T> type, List<Class<?>> constructorArgTypes, List<Object> constructorArgs) {
-        /**
-         * 映射对象类型
-         */
         // eg1: classToCreate=ArrayList.class  type=List.class
         // eg1: classToCreate=User.class       type=User.class
+        /** 根据type，映射具体的对象类型classToCreate */
         Class<?> classToCreate = resolveInterface(type);
 
-        /**
-         * 利用反射，生成对象
-         */
         // eg1: 返回空集合的ArrayList对象  classToCreate=ArrayList.class constructorArgTypes=null constructorArgs=null
         // eg1: 返回User{id=null, name='null', age=null, userContacts=null}  classToCreate=User.class constructorArgTypes=null constructorArgs=null
+        /** 利用反射，生成对象 */
         return (T) instantiateClass(classToCreate, constructorArgTypes, constructorArgs);
     }
 

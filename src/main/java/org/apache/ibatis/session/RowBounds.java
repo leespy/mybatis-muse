@@ -16,6 +16,8 @@
 package org.apache.ibatis.session;
 
 /**
+ * 存储分页的起始和结束行号
+ *
  * @author Clinton Begin
  */
 public class RowBounds {
@@ -24,7 +26,9 @@ public class RowBounds {
   public static final int NO_ROW_LIMIT = Integer.MAX_VALUE;
   public static final RowBounds DEFAULT = new RowBounds();
 
+  // 分页起始位置
   private int offset;
+  // 分页结束位置
   private int limit;
 
   public RowBounds() {

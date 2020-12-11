@@ -121,6 +121,13 @@ public class Configuration {
     protected boolean cacheEnabled = true;
     protected boolean callSettersOnNulls;
     protected boolean useActualParamName = true;
+
+    /**
+     * <setting name="returnInstanceForEmptyRow" value="true"/>
+     *
+     * 当返回行的所有列都是空时，MyBatis默认返回null。当开启这个设置时，MyBatis会返回一个空实例。请注意，它也适用于嵌套的结果集
+     * （i.e.collection and association）。（从3.4.2开始）
+     */
     protected boolean returnInstanceForEmptyRow;
 
     protected String logPrefix;
