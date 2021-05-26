@@ -27,7 +27,6 @@ import org.junit.Test;
  * 反射和代理
  *
  * Date 2018/1/26 下午7:28
- * Author lijinlong02@baidu.com
  */
 public class ReflectTest {
 

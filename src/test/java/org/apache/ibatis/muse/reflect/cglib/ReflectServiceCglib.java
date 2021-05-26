@@ -23,7 +23,6 @@ import net.sf.cglib.proxy.MethodProxy;
 
 /**
  * Date 2018/1/29 下午3:37
- * Author lijinlong02@baidu.com
  */
 public class ReflectServiceCglib implements MethodInterceptor{
 

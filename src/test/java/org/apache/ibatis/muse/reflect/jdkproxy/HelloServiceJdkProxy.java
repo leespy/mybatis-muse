@@ -21,7 +21,6 @@ import java.lang.reflect.Proxy;
 
 /**
  * Date 2018/1/29 下午3:16
- * Author lijinlong02@baidu.com
  */
 public class HelloServiceJdkProxy implements InvocationHandler{
 

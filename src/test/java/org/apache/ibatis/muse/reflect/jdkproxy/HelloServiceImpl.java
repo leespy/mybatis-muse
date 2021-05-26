@@ -17,7 +17,6 @@ package org.apache.ibatis.muse.reflect.jdkproxy;
 
 /**
  * Date 2018/1/29 下午3:15
- * Author lijinlong02@baidu.com
  */
 public class HelloServiceImpl implements HelloService{
     @Override

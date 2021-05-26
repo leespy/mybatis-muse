@@ -31,7 +31,6 @@ import org.apache.ibatis.datasource.DataSourceFactory;
  * DBCP数据源
  *
  * Date 17/11/20 下午5:27
- * Author lijinlong02@baidu.com
  */
 public class DbcpDataSourceFactory extends BasicDataSource implements DataSourceFactory {
 
